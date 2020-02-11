@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="X--bvGxUwZFDt3DzIdIzUPWmIdqO0-ABy96oKEzidvc">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="人工智能课学到了模式识别，用 matlab 写了个小 demo. 在基于贴近度的数字模式识别中，第一步就是要建立待识别对象的模糊模式，在这里，对包含数字的图片构造一个模糊模式，步骤如下： 建立矩阵123456I = imread(&apos;test.bmp&apos;);[rows,columns] = size(I);sum_of_rows = sum(I,2);%按行求和，保存在列阵sum_of_rows中%m">
+<meta name="keywords" content="图像处理,matlab,模式识别">
+<meta property="og:type" content="article">
+<meta property="og:title" content="建立数字图像的模糊矩阵">
+<meta property="og:url" content="http://yoursite.com/2017/12/06/建立数字图像的模糊矩阵/index.html">
+<meta property="og:site_name" content="Devin&#39;s blog">
+<meta property="og:description" content="人工智能课学到了模式识别，用 matlab 写了个小 demo. 在基于贴近度的数字模式识别中，第一步就是要建立待识别对象的模糊模式，在这里，对包含数字的图片构造一个模糊模式，步骤如下： 建立矩阵123456I = imread(&apos;test.bmp&apos;);[rows,columns] = size(I);sum_of_rows = sum(I,2);%按行求和，保存在列阵sum_of_rows中%m">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/test.bmp?x-oss-process=style/tuchuang">
+<meta property="og:image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/%E6%95%B0%E5%AD%97%E8%AF%86%E5%88%AB%E7%BB%93%E6%9E%9C.jpg?x-oss-process=style/tuchuang">
+<meta property="og:updated_time" content="2018-12-23T13:35:34.805Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="建立数字图像的模糊矩阵">
+<meta name="twitter:description" content="人工智能课学到了模式识别，用 matlab 写了个小 demo. 在基于贴近度的数字模式识别中，第一步就是要建立待识别对象的模糊模式，在这里，对包含数字的图片构造一个模糊模式，步骤如下： 建立矩阵123456I = imread(&apos;test.bmp&apos;);[rows,columns] = size(I);sum_of_rows = sum(I,2);%按行求和，保存在列阵sum_of_rows中%m">
+<meta name="twitter:image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/test.bmp?x-oss-process=style/tuchuang">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/12/06/建立数字图像的模糊矩阵/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>建立数字图像的模糊矩阵 | Devin's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Devin's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">路尽隐香处，翩然雪海间</h1>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/guestbook/" rel="section"><i class="menu-item-icon fa fa-fw fa-comment"></i> <br>留言</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/06/建立数字图像的模糊矩阵/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Devin Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/mmexport1447158285856.jpg?x-oss-process=style/tuchuang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Devin's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">建立数字图像的模糊矩阵
+
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-12-06 19:05:11" itemprop="dateCreated datePublished" datetime="2017-12-06T19:05:11+08:00">2017-12-06</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-12-23 21:35:34" itemprop="dateModified" datetime="2018-12-23T21:35:34+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/12/06/建立数字图像的模糊矩阵/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2017/12/06/建立数字图像的模糊矩阵/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>人工智能课学到了模式识别，用 matlab 写了个小 demo.</p>
+<p>在基于贴近度的数字模式识别中，第一步就是要建立待识别对象的模糊模式，在这里，对包含数字的图片构造一个模糊模式，步骤如下：</p>
+<h2 id="建立矩阵"><a href="#建立矩阵" class="headerlink" title="建立矩阵"></a>建立矩阵</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">I = imread('test.bmp');</span><br><span class="line">[rows,columns] = size(I);</span><br><span class="line">sum_of_rows = sum(I,<span class="number">2</span>);%按行求和，保存在列阵sum_of_rows中</span><br><span class="line"></span><br><span class="line">%max_value_rows = max(sum_of_rows);</span><br><span class="line">max_value_rows = columns;%每一行的最大值 = 列数</span><br></pre></td></tr></table></figure>
+ <a id="more"></a>
+<h2 id="扫描数字上下边界"><a href="#扫描数字上下边界" class="headerlink" title="扫描数字上下边界"></a>扫描数字上下边界</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">%%找到上下边界,求出高度h；</span><br><span class="line">border_top = <span class="number">0</span>; %上边界</span><br><span class="line">border_bottom = <span class="number">0</span>; %下边界</span><br><span class="line"><span class="keyword">for</span> r=<span class="number">2</span>:<span class="number">1</span>:rows</span><br><span class="line">    <span class="keyword">if</span>(sum_of_rows(r,<span class="number">1</span>) &lt; max_value_rows &amp;&amp; sum_of_rows(r<span class="number">-1</span>,<span class="number">1</span>) == max_value_rows)</span><br><span class="line">        border_top = r;</span><br><span class="line">    end</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">if</span>(sum_of_rows(r,<span class="number">1</span>) == max_value_rows &amp;&amp; sum_of_rows(r<span class="number">-1</span>,<span class="number">1</span>) &lt; max_value_rows)</span><br><span class="line">        border_bottom = r<span class="number">-1</span>; %上一行是下界</span><br><span class="line">    end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">h = border_bottom - border_top +<span class="number">1</span>;  %高度</span><br></pre></td></tr></table></figure>
+<h2 id="扫描每个数字的左右边界"><a href="#扫描每个数字的左右边界" class="headerlink" title="扫描每个数字的左右边界"></a>扫描每个数字的左右边界</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">%%找到中线；</span><br><span class="line">sum_of_columns = sum(I);%按列求和，保存在行阵中，<span class="number">1</span>行columns列</span><br><span class="line">max_value_columns = rows;%每列的最大值 = 行数</span><br><span class="line">middle = zeros(<span class="number">1</span>,<span class="number">10</span>);%记录每个数字的中线位置</span><br><span class="line">i = <span class="number">1</span>; %代表第几个数</span><br><span class="line"><span class="keyword">for</span> c=<span class="number">2</span>:<span class="number">1</span>:columns</span><br><span class="line">        <span class="keyword">if</span>(sum_of_columns(<span class="number">1</span>,c) &lt; max_value_columns &amp;&amp; sum_of_columns(<span class="number">1</span>,c<span class="number">-1</span>) == max_value_columns)</span><br><span class="line">            middle(<span class="number">1</span>,i) = c; %左边界</span><br><span class="line">        end</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span>(sum_of_columns(<span class="number">1</span>,c) == max_value_columns &amp;&amp; sum_of_columns(<span class="number">1</span>,c<span class="number">-1</span>)&lt; max_value_columns)</span><br><span class="line">            middle(<span class="number">1</span>,i) = round((middle(<span class="number">1</span>,i) + c<span class="number">-1</span>)/<span class="number">2</span>); %加上右边界,除以二，取整</span><br><span class="line">            i = i+<span class="number">1</span>;</span><br><span class="line">        end</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">%每个数字的左右切割边界,其实右切割边界没有用到</span><br><span class="line">border_lr = zeros(<span class="number">10</span>,<span class="number">2</span>);</span><br><span class="line"><span class="keyword">for</span> i=<span class="number">1</span>:<span class="number">1</span>:<span class="number">10</span></span><br><span class="line">    border_lr(i,<span class="number">1</span>) = middle(i) - round(h/<span class="number">2</span>); %左</span><br><span class="line">    border_lr(i,<span class="number">2</span>) = middle(i) + round(h/<span class="number">2</span>); %右</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<h2 id="基于特征分块"><a href="#基于特征分块" class="headerlink" title="基于特征分块"></a>基于特征分块</h2><p>因为 0-9 共10个数字，而2^3.4 ~ 10.5, 所以理论上只需要 3.4 个特征就可以分辨出这10个数字，那么把矩阵按 2x2 分块就可以了，实际上按我的算法,用 5x5 更明显。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">n = <span class="number">5</span>;   %分成n*n个分块，可以改</span><br><span class="line">side_length = round(h/n);  %求每个分块的边长</span><br><span class="line"><span class="keyword">for</span> order = <span class="number">1</span>:<span class="number">1</span>:<span class="number">10</span>   %循环<span class="number">10</span>个数字</span><br><span class="line">    lsd = zeros(n,n);</span><br><span class="line">    <span class="keyword">for</span> i=<span class="number">1</span>:<span class="number">1</span>:n   %第i列分块阵</span><br><span class="line">        <span class="keyword">for</span> j=<span class="number">1</span>:<span class="number">1</span>:n   %第j行分块阵</span><br><span class="line">            %求该分块的左右上下边界</span><br><span class="line">            x_left = round(border_lr(order,<span class="number">1</span>) + (side_length<span class="number">-1</span>)*(i<span class="number">-1</span>));%左</span><br><span class="line">            x_right = round(border_lr(order,<span class="number">1</span>) + (side_length<span class="number">-1</span>)*(i));%右</span><br><span class="line">            y_top = border_top + (side_length<span class="number">-1</span>)*(j<span class="number">-1</span>);%上</span><br><span class="line">            y_bow = border_top + (side_length<span class="number">-1</span>)*j;%下</span><br><span class="line">            %求每一分块中<span class="number">1</span>的个数</span><br><span class="line">            num_of_one = sum(sum(I(y_top:y_bow,x_left:x_right)));</span><br><span class="line">            %求每一分块中<span class="number">0</span>占的比率</span><br><span class="line">            lsd(j,i) = <span class="number">1</span> - (num_of_one/(side_length*side_length));</span><br><span class="line">        end</span><br><span class="line">    end</span><br><span class="line">    fprintf('数字%d的%d维隶属度矩阵是：\n',order-1,n);  </span><br><span class="line">    disp(lsd);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="string">'\n'</span>);</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<p>完成了。待识别图片 test.bmp 是宋体15号字体，如下：<br><img src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/test.bmp?x-oss-process=style/tuchuang"></p>
+<p>程序运行部分结果：<br><img src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/%E6%95%B0%E5%AD%97%E8%AF%86%E5%88%AB%E7%BB%93%E6%9E%9C.jpg?x-oss-process=style/tuchuang"></p>
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/图像处理/" rel="tag"># 图像处理</a>
+          
+            <a href="/tags/matlab/" rel="tag"># matlab</a>
+          
+            <a href="/tags/模式识别/" rel="tag"># 模式识别</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/14/Python环境配置/" rel="next" title="Python 环境配置">
+                <i class="fa fa-chevron-left"></i> Python 环境配置
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/06/图像模糊增强/" rel="prev" title="图像模糊增强">
+                图像模糊增强 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/mmexport1447158285856.jpg?x-oss-process=style/tuchuang" alt="Devin Zhang">
+            
+              <p class="site-author-name" itemprop="name">Devin Zhang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/MeetDevin" title="GitHub &rarr; https://github.com/MeetDevin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:meetdevin.zh@outlook.com" title="E-Mail &rarr; mailto:meetdevin.zh@outlook.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.douban.com/people/zxin94264/" title="豆瓣 &rarr; https://www.douban.com/people/zxin94264/" rel="noopener" target="_blank"><i class="fa fa-fw fa-cat"></i>豆瓣</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://steamcommunity.com/id/devinzhang" title="Steam &rarr; http://steamcommunity.com/id/devinzhang" rel="noopener" target="_blank"><i class="fa fa-fw fa-steam-symbol"></i>Steam</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#建立矩阵"><span class="nav-number">1.</span> <span class="nav-text">建立矩阵</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#扫描数字上下边界"><span class="nav-number">2.</span> <span class="nav-text">扫描数字上下边界</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#扫描每个数字的左右边界"><span class="nav-number">3.</span> <span class="nav-text">扫描每个数字的左右边界</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于特征分块"><span class="nav-number">4.</span> <span class="nav-text">基于特征分块</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Devin Zhang</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.6.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.6.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+  <script>
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: '6IN3m2rNpPb49i7J7Ufuf49P-gzGzoHsz',
+        appKey: 'DB1nkhJp3kavuO5Q529hfp4A',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<style>
+.MathJax_Display {
+    overflow: auto hidden;
+}
+</style>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('复制').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('复制成功');
+          else $(this).text('复制失败');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('复制');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>

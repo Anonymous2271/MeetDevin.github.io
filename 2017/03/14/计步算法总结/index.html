@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="X--bvGxUwZFDt3DzIdIzUPWmIdqO0-ABy96oKEzidvc">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="在Android4.4 Kitkat 之后，谷歌新增了 Step Counter Sensor 以及 Step Detector Sensor 用于Android 计步。我在网上看了很多大牛的博客，现在计步都分为两个大方向，一是直接就使用上面自带的这个，二是自己造轮子，接下来我就讲讲，如何自己造轮子，也算是对自己近期学习成果的总结。 分析数据源使用加速度传感器获取到手机加速度的变化，然后通过算法来">
+<meta name="keywords" content="Android,算法,计步">
+<meta property="og:type" content="article">
+<meta property="og:title" content="计步算法个人总结">
+<meta property="og:url" content="http://yoursite.com/2017/03/14/计步算法总结/index.html">
+<meta property="og:site_name" content="Devin&#39;s blog">
+<meta property="og:description" content="在Android4.4 Kitkat 之后，谷歌新增了 Step Counter Sensor 以及 Step Detector Sensor 用于Android 计步。我在网上看了很多大牛的博客，现在计步都分为两个大方向，一是直接就使用上面自带的这个，二是自己造轮子，接下来我就讲讲，如何自己造轮子，也算是对自己近期学习成果的总结。 分析数据源使用加速度传感器获取到手机加速度的变化，然后通过算法来">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/jibu.jpg?x-oss-process=style/tuchuang">
+<meta property="og:image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/boxingtu.jpg?x-oss-process=style/tuchuang">
+<meta property="og:image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/jibuliucheng.jpg?x-oss-process=style/tuchuang">
+<meta property="og:updated_time" content="2018-12-23T13:35:01.011Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="计步算法个人总结">
+<meta name="twitter:description" content="在Android4.4 Kitkat 之后，谷歌新增了 Step Counter Sensor 以及 Step Detector Sensor 用于Android 计步。我在网上看了很多大牛的博客，现在计步都分为两个大方向，一是直接就使用上面自带的这个，二是自己造轮子，接下来我就讲讲，如何自己造轮子，也算是对自己近期学习成果的总结。 分析数据源使用加速度传感器获取到手机加速度的变化，然后通过算法来">
+<meta name="twitter:image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/jibu.jpg?x-oss-process=style/tuchuang">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/03/14/计步算法总结/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>计步算法个人总结 | Devin's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Devin's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">路尽隐香处，翩然雪海间</h1>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/guestbook/" rel="section"><i class="menu-item-icon fa fa-fw fa-comment"></i> <br>留言</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/03/14/计步算法总结/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Devin Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/mmexport1447158285856.jpg?x-oss-process=style/tuchuang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Devin's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">计步算法个人总结
+
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-03-14 13:22:50" itemprop="dateCreated datePublished" datetime="2017-03-14T13:22:50+08:00">2017-03-14</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-12-23 21:35:01" itemprop="dateModified" datetime="2018-12-23T21:35:01+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/03/14/计步算法总结/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2017/03/14/计步算法总结/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在Android4.4 Kitkat 之后，谷歌新增了 <a href="https://developer.android.google.cn/guide/topics/sensors/sensors_motion.html#sensors-motion-stepcounter" target="_blank" rel="noopener">Step Counter Sensor</a> 以及 <a href="https://developer.android.google.cn/guide/topics/sensors/sensors_motion.html#sensors-motion-stepdetector" target="_blank" rel="noopener">Step Detector Sensor</a> 用于Android 计步。我在网上看了很多大牛的博客，现在计步都分为两个大方向，一是直接就使用上面自带的这个，二是自己造轮子，接下来我就讲讲，如何自己造轮子，也算是对自己近期学习成果的总结。</p>
+<h1 id="分析数据源"><a href="#分析数据源" class="headerlink" title="分析数据源"></a>分析数据源</h1><p>使用加速度传感器获取到手机加速度的变化，然后通过算法来检测步数。仔细想想平时走路的情景，人体重心的加速度由前向和纵向的两个分量合成，<br><!--指定大小图片--><br><img src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/jibu.jpg?x-oss-process=style/tuchuang"><br> <a id="more"></a><br>合成之后的加速度波形就很规律了，我们只需要检测波峰/波谷，再过滤掉其他的干扰，就能估算出步数了（绝对的加速度需要算上重力加速度，本文后面所说的都指相对的，人体行走时产生的加速度）。<br><img src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/boxingtu.jpg?x-oss-process=style/tuchuang"></p>
+<h1 id="算法分析"><a href="#算法分析" class="headerlink" title="算法分析"></a>算法分析</h1><h2 id="检测波峰"><a href="#检测波峰" class="headerlink" title="检测波峰"></a>检测波峰</h2><p>既然目标是检测波峰，那就首先要知道，加速度传感器采样的频率比较高，一般大于30Hz，30Hz是什么概念，正常人走一步的时间内，可以采样大概二十次了，意思是，在一个上升波段中，检查到的加速度会连续增大好多次，同样在下降波段中加速度也会连续减小好多次。于是，从波形图看，检测波峰的方法可以概括为四个条件:</p>
+<ul>
+<li>上一次波形上升状态</li>
+<li>目前为下降状态</li>
+<li>到波峰为止，连续上升多次</li>
+<li>波峰/波谷值在一定范围内</li>
+</ul>
+<p>翻译成代码便是下面的 <code>boolean DetectorPeak(float newValue, float oldValue)</code> 方法。</p>
+<h2 id="检测步数"><a href="#检测步数" class="headerlink" title="检测步数"></a>检测步数</h2><p>分析数据源的时候就已提到，检测到波峰之后，需再滤掉干扰波，比如细微的震动等等，才能判定为一步。于是这里便生成了三个条件：</p>
+<ul>
+<li><code>DetectorPeak()</code> return true</li>
+<li>符合一定的时间差</li>
+<li>大于一个动态生成的阈值</li>
+</ul>
+<p>翻译成代码便是下面的 <code>void detectorNewStep(float values)</code> 方法。</p>
+<h1 id="源代码"><a href="#源代码" class="headerlink" title="源代码"></a>源代码</h1><p>我就直接上了，也可以在我的 <a href="https://github.com/MeetDevin/healthylife" target="_blank" rel="noopener">GitHub</a> 获取最新的版本。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义的加速度传感器监听</span></span><br><span class="line"><span class="comment"> * 在此处理加速度事件</span></span><br><span class="line"><span class="comment"> * 使用方法：</span></span><br><span class="line"><span class="comment"> * - 外部通过 setOnSensorChangeListener 方法传入回调对象</span></span><br><span class="line"><span class="comment"> * - 外部通过复写接口 OnSensorChangeListener 的 onChange() 方法获取步数</span></span><br><span class="line"><span class="comment"> * Created by XinZh on 2017/3/1.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@RequiresApi</span>(api = Build.VERSION_CODES.CUPCAKE)</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyStepDcretor</span> <span class="keyword">implements</span> <span class="title">SensorEventListener</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String TAG = <span class="string">"StepDcretor"</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//加速度，用x、y、z轴的三个加速度分量计算出</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">float</span> acceleration = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//当前传感器的值</span></span><br><span class="line">    <span class="comment">//float gravityNew = 0;</span></span><br><span class="line">    <span class="comment">//上次的加速度</span></span><br><span class="line">    <span class="keyword">float</span> lastAcceleration = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//是否上升的标志位</span></span><br><span class="line">    <span class="keyword">boolean</span> isDirectionUp = <span class="keyword">false</span>;</span><br><span class="line">    <span class="comment">//持续上升次数</span></span><br><span class="line">    <span class="keyword">int</span> continueUpCount = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//上一点的持续上升的次数，为了记录波峰的上升次数</span></span><br><span class="line">    <span class="keyword">int</span> continueUpFormerCount = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//上一点的状态，上升还是下降</span></span><br><span class="line">    <span class="keyword">boolean</span> lastStatus = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//波峰值</span></span><br><span class="line">    <span class="keyword">float</span> peakOfWave = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//波谷值</span></span><br><span class="line">    <span class="keyword">float</span> valleyOfWave = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//此次波峰的时间</span></span><br><span class="line">    <span class="keyword">long</span> timeOfThisPeak = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//上次波峰的时间</span></span><br><span class="line">    <span class="keyword">long</span> timeOfLastPeak = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//系统当前的时间</span></span><br><span class="line">    <span class="keyword">long</span> timeOfNow = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//初始阈(yu)值</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">float</span> initialThreshold = (<span class="keyword">float</span>) <span class="number">1.7</span>;</span><br><span class="line">    <span class="comment">// 动态阈值需要动态的数据，这个值用于这些动态数据的阈值</span></span><br><span class="line">    <span class="keyword">float</span> threadThreshold = (<span class="keyword">float</span>) <span class="number">2.0</span>;</span><br><span class="line">    <span class="comment">//用于存放计算阈值的波峰波谷差值</span></span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> valueNum = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">float</span>[] tempValue = <span class="keyword">new</span> <span class="keyword">float</span>[valueNum];</span><br><span class="line">    <span class="keyword">int</span> tempCount = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//初始范围</span></span><br><span class="line">    <span class="keyword">float</span> minValue = <span class="number">11f</span>;</span><br><span class="line">    <span class="keyword">float</span> maxValue = <span class="number">19.6f</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 计步状态</span></span><br><span class="line"><span class="comment">     * 0-未计步   1-预备计步，计时中   2-正常计步中，存储</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> pedometerState = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">//步数</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> CURRENT_SETP = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> TEMP_STEP = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> lastStep = -<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Timer timer;</span><br><span class="line">    <span class="comment">// 倒计时3.5秒，3.5秒内不会显示计步，用于屏蔽细微波动</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">long</span> duration = <span class="number">3500</span>;</span><br><span class="line">    <span class="keyword">private</span> TimeCount timeCount;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 自定义的接口，实时向外传递步数</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    OnSensorChangeListener onSensorChangeListener;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">OnSensorChangeListener</span> </span>&#123;</span><br><span class="line">        <span class="comment">//当步数改变时,通知外部更新UI</span></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onStepsListenerChange</span><span class="params">(<span class="keyword">int</span> steps)</span></span>;</span><br><span class="line">        <span class="comment">//当计步状态改变时，通知外部是否存储</span></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">onPedometerStateChange</span><span class="params">(<span class="keyword">int</span> pedometerState)</span></span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//获取接口对象</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> OnSensorChangeListener <span class="title">getOnSensorChangeListener</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> onSensorChangeListener;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//设置监听，传入回调对象</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setOnSensorChangeListener</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">            OnSensorChangeListener onSensorChangeListener)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.onSensorChangeListener = onSensorChangeListener;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">//构造函数</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyStepDcretor</span><span class="params">(<span class="keyword">int</span> newSteps)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>();</span><br><span class="line">        CURRENT_SETP = newSteps;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> event</span></span><br><span class="line"><span class="comment">     * 加速度传感器</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onSensorChanged</span><span class="params">(SensorEvent event)</span> </span>&#123;</span><br><span class="line">        Sensor sensor = event.sensor;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (sensor.getType() == Sensor.TYPE_ACCELEROMETER) &#123;</span><br><span class="line">                getAcceleration(event);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onAccuracyChanged</span><span class="params">(Sensor sensor, <span class="keyword">int</span> accuracy)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 计算加速度</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> event</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">synchronized</span> <span class="keyword">private</span> <span class="keyword">void</span> <span class="title">getAcceleration</span><span class="params">(SensorEvent event)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//忽略加速度方向，取绝对值</span></span><br><span class="line">        acceleration = (<span class="keyword">float</span>) Math.sqrt(Math.pow(event.values[<span class="number">0</span>], <span class="number">2</span>)</span><br><span class="line">                + Math.pow(event.values[<span class="number">1</span>], <span class="number">2</span>) + Math.pow(event.values[<span class="number">2</span>], <span class="number">2</span>));</span><br><span class="line">        detectorNewStep(acceleration);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 检测步子，并开始计步</span></span><br><span class="line"><span class="comment">     * 如果检测到了波峰，并且符合时间差以及阈值的条件，则判定为1步</span></span><br><span class="line"><span class="comment">     * 符合时间差条件，波峰波谷差值大于initialValue，则将该差值纳入阈值的计算中</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">detectorNewStep</span><span class="params">(<span class="keyword">float</span> values)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (lastAcceleration == <span class="number">0</span>) &#123;</span><br><span class="line">            lastAcceleration = values;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (DetectorPeak(values, lastAcceleration)) &#123;</span><br><span class="line">                timeOfLastPeak = timeOfThisPeak;</span><br><span class="line">                timeOfNow = System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (timeOfNow - timeOfLastPeak &gt;= <span class="number">200</span></span><br><span class="line">                        &amp;&amp; (peakOfWave - valleyOfWave &gt;= threadThreshold) &amp;&amp; (timeOfNow - timeOfLastPeak) &lt;= <span class="number">2000</span>) &#123;</span><br><span class="line">                    timeOfThisPeak = timeOfNow;</span><br><span class="line">                    <span class="comment">//视为一步，更新界面的处理，不涉及到算法</span></span><br><span class="line">                    preStep();</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (timeOfNow - timeOfLastPeak &gt;= <span class="number">200</span></span><br><span class="line">                        &amp;&amp; (peakOfWave - valleyOfWave &gt;= initialThreshold)) &#123;</span><br><span class="line">                    timeOfThisPeak = timeOfNow;</span><br><span class="line">                    threadThreshold = Peak_Valley_Thread(peakOfWave - valleyOfWave);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        lastAcceleration = values;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 检测波峰</span></span><br><span class="line"><span class="comment">     * 以下四个条件判断为波峰：</span></span><br><span class="line"><span class="comment">     *  1.目前点为下降的趋势：isDirectionUp为false</span></span><br><span class="line"><span class="comment">     *  2.之前的点为上升的趋势：lastStatus为true</span></span><br><span class="line"><span class="comment">     *  3.到波峰为止，持续上升大于等于2次</span></span><br><span class="line"><span class="comment">     *     - 这是因为：加速度传感器采集的频率比较高，一般大于30Hz，2次还算少的了</span></span><br><span class="line"><span class="comment">     *  4.波峰值大于1.2g,小于2g</span></span><br><span class="line"><span class="comment">     * 记录波谷值</span></span><br><span class="line"><span class="comment">     * 1.观察波形图，可以发现在出现步子的地方，波谷的下一个就是波峰，有比较明显的特征以及差值</span></span><br><span class="line"><span class="comment">     * 2.所以要记录每次的波谷值，为了和下次的波峰做对比</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> newValue 本次的加速度</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> oldValue 上次的加速度</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">DetectorPeak</span><span class="params">(<span class="keyword">float</span> newValue, <span class="keyword">float</span> oldValue)</span> </span>&#123;</span><br><span class="line">        lastStatus = isDirectionUp;</span><br><span class="line">        <span class="keyword">if</span> (newValue &gt;= oldValue) &#123;<span class="comment">//可以换成差值大于某一值也可</span></span><br><span class="line">            isDirectionUp = <span class="keyword">true</span>;</span><br><span class="line">            continueUpCount++;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            continueUpFormerCount = continueUpCount;</span><br><span class="line">            continueUpCount = <span class="number">0</span>;</span><br><span class="line">            isDirectionUp = <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Log.v(TAG, "oldValue:" + oldValue);</span></span><br><span class="line">        <span class="keyword">if</span> (!isDirectionUp &amp;&amp; lastStatus</span><br><span class="line">                &amp;&amp; (continueUpFormerCount &gt;= <span class="number">2</span> &amp;&amp; (oldValue &gt;= minValue &amp;&amp; oldValue &lt; maxValue))) &#123;</span><br><span class="line">            peakOfWave = oldValue;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (!lastStatus &amp;&amp; isDirectionUp) &#123;</span><br><span class="line">            valleyOfWave = oldValue;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 阈值的计算</span></span><br><span class="line"><span class="comment">     * 1.通过波峰波谷的差值计算阈值</span></span><br><span class="line"><span class="comment">     * 2.记录4个值，存入tempValue[]数组中</span></span><br><span class="line"><span class="comment">     * 3.在将数组传入函数averageValue中计算阈值</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">Peak_Valley_Thread</span><span class="params">(<span class="keyword">float</span> value)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">float</span> tempThread = threadThreshold;</span><br><span class="line">        <span class="keyword">if</span> (tempCount &lt; valueNum) &#123; <span class="comment">//存储过程</span></span><br><span class="line">            tempValue[tempCount] = value;</span><br><span class="line">            tempCount++;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">//计算过程</span></span><br><span class="line">            tempThread = averageValue(tempValue, valueNum);</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; valueNum; i++) &#123; <span class="comment">//   ？？？？？</span></span><br><span class="line">                tempValue[i - <span class="number">1</span>] = tempValue[i];</span><br><span class="line">            &#125;</span><br><span class="line">            tempValue[valueNum - <span class="number">1</span>] = value;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> tempThread;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 梯度化阈值</span></span><br><span class="line"><span class="comment">     * 1.计算数组的均值</span></span><br><span class="line"><span class="comment">     * 2.通过均值将阈值梯度化在一个范围里</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">float</span> <span class="title">averageValue</span><span class="params">(<span class="keyword">float</span> value[], <span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">float</span> ave = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            ave += value[i];</span><br><span class="line">        &#125;</span><br><span class="line">        ave = ave / valueNum;</span><br><span class="line">        <span class="keyword">if</span> (ave &gt;= <span class="number">8</span>) &#123;</span><br><span class="line">            Log.v(TAG, <span class="string">"超过8"</span>);</span><br><span class="line">            ave = (<span class="keyword">float</span>) <span class="number">4.3</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ave &gt;= <span class="number">7</span> &amp;&amp; ave &lt; <span class="number">8</span>) &#123;</span><br><span class="line">            Log.v(TAG, <span class="string">"7-8"</span>);</span><br><span class="line">            ave = (<span class="keyword">float</span>) <span class="number">3.3</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ave &gt;= <span class="number">4</span> &amp;&amp; ave &lt; <span class="number">7</span>) &#123;</span><br><span class="line">            Log.v(TAG, <span class="string">"4-7"</span>);</span><br><span class="line">            ave = (<span class="keyword">float</span>) <span class="number">2.3</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ave &gt;= <span class="number">3</span> &amp;&amp; ave &lt; <span class="number">4</span>) &#123;</span><br><span class="line">            Log.v(TAG, <span class="string">"3-4"</span>);</span><br><span class="line">            ave = (<span class="keyword">float</span>) <span class="number">2.0</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            Log.v(TAG, <span class="string">"else"</span>);</span><br><span class="line">            ave = (<span class="keyword">float</span>) <span class="number">1.7</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ave;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">preStep</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (pedometerState == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="comment">// 开启计时器,duration 秒倒计时，每次间隔700毫秒</span></span><br><span class="line">            timeCount = <span class="keyword">new</span> TimeCount(duration, <span class="number">700</span>);</span><br><span class="line">            timeCount.start();</span><br><span class="line">            pedometerState = <span class="number">1</span>;</span><br><span class="line">            <span class="comment">//通知外部计步预备中</span></span><br><span class="line">            onSensorChangeListener.onPedometerStateChange(pedometerState);</span><br><span class="line">            Log.v(TAG, <span class="string">"开启计时器"</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (pedometerState == <span class="number">1</span>) &#123;</span><br><span class="line">            TEMP_STEP++;</span><br><span class="line">            Log.v(TAG, <span class="string">"预备计步中 TEMP_STEP:"</span> + TEMP_STEP);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (pedometerState == <span class="number">2</span>) &#123;</span><br><span class="line">            CURRENT_SETP++;</span><br><span class="line">            <span class="keyword">if</span> (onSensorChangeListener != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">//调用接口向外传递信息</span></span><br><span class="line">                onSensorChangeListener.onStepsListenerChange(CURRENT_SETP);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 自定义计时器类，复写onFinish()和onTick()方法</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">TimeCount</span> <span class="keyword">extends</span> <span class="title">CountDownTimer</span> </span>&#123;</span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">TimeCount</span><span class="params">(<span class="keyword">long</span> millisInFuture, <span class="keyword">long</span> countDownInterval)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">super</span>(millisInFuture, countDownInterval);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFinish</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="comment">// 如果计时器正常结束，则开始计步</span></span><br><span class="line">            timeCount.cancel();</span><br><span class="line">            CURRENT_SETP += TEMP_STEP;</span><br><span class="line">            lastStep = -<span class="number">1</span>;</span><br><span class="line"><span class="comment">//            CountTimeState = 2;</span></span><br><span class="line">            Log.v(TAG, <span class="string">"计时正常结束"</span>);</span><br><span class="line"></span><br><span class="line">            timer = <span class="keyword">new</span> Timer(<span class="keyword">true</span>);</span><br><span class="line">            TimerTask task = <span class="keyword">new</span> TimerTask() &#123;</span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">if</span> (lastStep == CURRENT_SETP) &#123;</span><br><span class="line">                        timer.cancel();</span><br><span class="line">                        pedometerState = <span class="number">0</span>;</span><br><span class="line">                        onSensorChangeListener.onPedometerStateChange(pedometerState);</span><br><span class="line">                        lastStep = -<span class="number">1</span>;</span><br><span class="line">                        <span class="comment">//&lt;标签1:这里我自己的需求，会使得每一次计步过程后步数清零，可删&gt;</span></span><br><span class="line">                        CURRENT_SETP = <span class="number">0</span>;</span><br><span class="line">                        <span class="comment">//&lt;/标签1&gt;</span></span><br><span class="line">                        TEMP_STEP = <span class="number">0</span>;</span><br><span class="line">                        Log.v(TAG, <span class="string">"停止计步："</span> + CURRENT_SETP);</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        lastStep = CURRENT_SETP;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;;</span><br><span class="line">            <span class="comment">//0-调用后，多久开始一次次执行run()方法,2000-以后每次间隔多久调用run()</span></span><br><span class="line">            timer.schedule(task, <span class="number">0</span>, <span class="number">2000</span>);</span><br><span class="line">            pedometerState = <span class="number">2</span>;</span><br><span class="line">            onSensorChangeListener.onPedometerStateChange(pedometerState);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//计时/预备计步过程，每700毫秒执行一次</span></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onTick</span><span class="params">(<span class="keyword">long</span> millisUntilFinished)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (lastStep == TEMP_STEP) &#123;</span><br><span class="line">                Log.v(TAG, <span class="string">"onTick 计时停止"</span>);</span><br><span class="line">                timeCount.cancel();</span><br><span class="line">                pedometerState = <span class="number">0</span>;</span><br><span class="line">                onSensorChangeListener.onPedometerStateChange(pedometerState);</span><br><span class="line">                lastStep = -<span class="number">1</span>;</span><br><span class="line">                TEMP_STEP = <span class="number">0</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                lastStep = TEMP_STEP;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>想要简单使用这个类的计步功能，只需要在 <code>Service</code> 中实现 <code>MyStepDcretor.OnSensorChangeListener</code> 接口，建立它的对象并且注册加速度传感器就行了，注意把我代码中&lt;标签1&gt;中的那行按需处理。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">myStepDcretor = <span class="keyword">new</span> MyStepDcretor(stepsItemModel.getSteps());</span><br><span class="line"></span><br><span class="line">                sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);</span><br><span class="line">                Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);</span><br><span class="line">                sensorManager.registerListener(myStepDcretor,sensor,SensorManager.SENSOR_DELAY_UI);</span><br><span class="line"></span><br><span class="line">                myStepDcretor.setOnSensorChangeListener(PedometerService.<span class="keyword">this</span>);</span><br></pre></td></tr></table></figure></p>
+<h1 id="进阶使用"><a href="#进阶使用" class="headerlink" title="进阶使用"></a>进阶使用</h1><h2 id="划分为过程"><a href="#划分为过程" class="headerlink" title="划分为过程"></a>划分为过程</h2><p>再来仔细分析代码，在 <code>void preStep()</code> 方法中，我用了一个 <code>pedometerState</code> 整型常量，这是因为，我把计步划分为一次次的过程单位，或者叫事务，这个过程有三个状态:</p>
+<ul>
+<li>预备计步：临时步数++</li>
+<li>正常计步：临时步数 + (新步数++)，更新 UI</li>
+<li>停止计步</li>
+</ul>
+<blockquote>
+<p>每一次状态改变都会通过接口通知外部</p>
+</blockquote>
+<p>每天所走的步数，都是由一个个的过程累加起来的，比如，我早上8点完成了一个计步过程，共100步，下午又有一次200步的，于是今天我便走了300步，为什么这么做，主要是为了后期统计数据的需求所致，这便要求我的计步能够返回一个当前计步状态，这便是这个整型常量 <code>pedometerState</code>.</p>
+<blockquote>
+<p>为什么有预备计步？</p>
+</blockquote>
+<p>这是因为在这个过程的概念下，需要进一步的过滤掉干扰，比如上面的例子中，我在中午敲代码的时候，去泡了杯咖啡，走了20步……你觉得这也要算做一次过程记录下来吗？当然不要。</p>
+<p><strong>整理下逻辑：</strong> 在算法检测到新的一步后，如果当前处于停止计步状态，会开启一个计时器，并进入预备计步状态，计时器每间隔一定时间检测是否有新的步数产生，如果没有，进入停止计步状态，如果在计时完成后还有新步数产生，那么进入正常进步状态，再开启新的计时器，每间隔一定时间判定是否有新步数，如果没有，进入停止计步状态。<br><!--指定大小图片--><br><img src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/jibuliucheng.jpg?x-oss-process=style/tuchuang"></p>
+<h2 id="步数存储与恢复"><a href="#步数存储与恢复" class="headerlink" title="步数存储与恢复"></a>步数存储与恢复</h2><p>在外部（Service 中），针对不同的计步状态可以有不同的存储方式，比较自由，我的做法是：在<em>正常计步状态中</em>，每20步存储一次，在变为<em>停止计步状态瞬间</em>，存储一次。此外，在 Service 重启时，从存储中恢复数据，通过我这个类的构造方法传入。</p>
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/算法/" rel="tag"># 算法</a>
+          
+            <a href="/tags/计步/" rel="tag"># 计步</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/26/Remote_Service使用之IPC/" rel="next" title="Remote Service使用之IPC">
+                <i class="fa fa-chevron-left"></i> Remote Service使用之IPC
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/14/避免Context内存泄漏/" rel="prev" title="避免Context内存泄漏">
+                避免Context内存泄漏 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/mmexport1447158285856.jpg?x-oss-process=style/tuchuang" alt="Devin Zhang">
+            
+              <p class="site-author-name" itemprop="name">Devin Zhang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/MeetDevin" title="GitHub &rarr; https://github.com/MeetDevin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:meetdevin.zh@outlook.com" title="E-Mail &rarr; mailto:meetdevin.zh@outlook.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.douban.com/people/zxin94264/" title="豆瓣 &rarr; https://www.douban.com/people/zxin94264/" rel="noopener" target="_blank"><i class="fa fa-fw fa-cat"></i>豆瓣</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://steamcommunity.com/id/devinzhang" title="Steam &rarr; http://steamcommunity.com/id/devinzhang" rel="noopener" target="_blank"><i class="fa fa-fw fa-steam-symbol"></i>Steam</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#分析数据源"><span class="nav-number">1.</span> <span class="nav-text">分析数据源</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#算法分析"><span class="nav-number">2.</span> <span class="nav-text">算法分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#检测波峰"><span class="nav-number">2.1.</span> <span class="nav-text">检测波峰</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#检测步数"><span class="nav-number">2.2.</span> <span class="nav-text">检测步数</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#源代码"><span class="nav-number">3.</span> <span class="nav-text">源代码</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#进阶使用"><span class="nav-number">4.</span> <span class="nav-text">进阶使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#划分为过程"><span class="nav-number">4.1.</span> <span class="nav-text">划分为过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#步数存储与恢复"><span class="nav-number">4.2.</span> <span class="nav-text">步数存储与恢复</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Devin Zhang</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.6.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.6.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+  <script>
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: '6IN3m2rNpPb49i7J7Ufuf49P-gzGzoHsz',
+        appKey: 'DB1nkhJp3kavuO5Q529hfp4A',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<style>
+.MathJax_Display {
+    overflow: auto hidden;
+}
+</style>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('复制').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('复制成功');
+          else $(this).text('复制失败');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('复制');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>

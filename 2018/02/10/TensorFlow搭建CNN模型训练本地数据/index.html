@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="X--bvGxUwZFDt3DzIdIzUPWmIdqO0-ABy96oKEzidvc">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="本文记录了我用 TensorFlow（以下简称tf）搭建卷积神经网络（简称CNN），并输入本地数据批量训练的一种方法与过程，展示了 tf 数据流图的构建，还涉及一点 Python 面向对象的设计思想，各部分解耦便于扩展。 其实在 tf 官网上便有用 MNIST 数据集训练的例子，但是大部分初学者（包括我在内）对于如何把数据集转换成本地数据，还是不太了解。写这篇文章也算是对自己强势入门机器学习的一个">
+<meta name="keywords" content="机器学习,卷积神经网络,神经网络,TensorFlow">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tensorflow 搭建 CNN 模型训练本地数据">
+<meta property="og:url" content="http://yoursite.com/2018/02/10/TensorFlow搭建CNN模型训练本地数据/index.html">
+<meta property="og:site_name" content="Devin&#39;s blog">
+<meta property="og:description" content="本文记录了我用 TensorFlow（以下简称tf）搭建卷积神经网络（简称CNN），并输入本地数据批量训练的一种方法与过程，展示了 tf 数据流图的构建，还涉及一点 Python 面向对象的设计思想，各部分解耦便于扩展。 其实在 tf 官网上便有用 MNIST 数据集训练的例子，但是大部分初学者（包括我在内）对于如何把数据集转换成本地数据，还是不太了解。写这篇文章也算是对自己强势入门机器学习的一个">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-12-23T09:52:37.846Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Tensorflow 搭建 CNN 模型训练本地数据">
+<meta name="twitter:description" content="本文记录了我用 TensorFlow（以下简称tf）搭建卷积神经网络（简称CNN），并输入本地数据批量训练的一种方法与过程，展示了 tf 数据流图的构建，还涉及一点 Python 面向对象的设计思想，各部分解耦便于扩展。 其实在 tf 官网上便有用 MNIST 数据集训练的例子，但是大部分初学者（包括我在内）对于如何把数据集转换成本地数据，还是不太了解。写这篇文章也算是对自己强势入门机器学习的一个">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/02/10/TensorFlow搭建CNN模型训练本地数据/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Tensorflow 搭建 CNN 模型训练本地数据 | Devin's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Devin's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">路尽隐香处，翩然雪海间</h1>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/guestbook/" rel="section"><i class="menu-item-icon fa fa-fw fa-comment"></i> <br>留言</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/10/TensorFlow搭建CNN模型训练本地数据/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Devin Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/mmexport1447158285856.jpg?x-oss-process=style/tuchuang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Devin's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">Tensorflow 搭建 CNN 模型训练本地数据
+
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-02-10 11:30:23" itemprop="dateCreated datePublished" datetime="2018-02-10T11:30:23+08:00">2018-02-10</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-12-23 17:52:37" itemprop="dateModified" datetime="2018-12-23T17:52:37+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/10/TensorFlow搭建CNN模型训练本地数据/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2018/02/10/TensorFlow搭建CNN模型训练本地数据/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文记录了我用 TensorFlow（以下简称tf）搭建卷积神经网络（简称CNN），并输入本地数据批量训练的一种方法与过程，展示了 tf 数据流图的构建，还涉及一点 Python 面向对象的设计思想，各部分解耦便于扩展。</p>
+<p>其实在 tf 官网上便有用 MNIST 数据集训练的例子，但是大部分初学者（包括我在内）对于如何把数据集转换成本地数据，还是不太了解。写这篇文章也算是对自己强势入门机器学习的一个总结。<br>文中我简述了基本的思想，看看就行，完整代码都在文末，附上了 GitHub 地址。</p>
+<h1 id="项目包结构"><a href="#项目包结构" class="headerlink" title="项目包结构"></a>项目包结构</h1><blockquote>
+<p>不知道Python里是不是这么叫的，我这是Java里的叫法</p>
+</blockquote>
+ <a id="more"></a>
+<p>local_data 文件夹存放的是本地数据集，因为做的是手写数字识别，所以分成10个类，也就是10个子文件夹，每个文件夹里随意放同类图片，比如说0文件夹里全都是写着0的图片。</p>
+<h1 id="input-local-data"><a href="#input-local-data" class="headerlink" title="input_local_data"></a>input_local_data</h1><p>负责封装上面这些数据，它会先遍历文件夹，自动记录分类标签，省去了人工标识的烦恼，部分代码如下：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> train_class <span class="keyword">in</span> os.listdir(self.file_dir):</span><br><span class="line">    <span class="keyword">for</span> pic <span class="keyword">in</span> os.listdir(self.file_dir + train_class):</span><br><span class="line">        img_list.append(self.file_dir + train_class + <span class="string">'/'</span> + pic)</span><br><span class="line">        label_list.append(train_class)</span><br></pre></td></tr></table></figure></p>
+<p>这其中还有一些数据类型转换和顺序的随机打乱，在文末会附上完整的代码。接下来的重点是使用 tf 自带的函数制作训练批次：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_batches</span><span class="params">(self, resize_w, resize_h, batch_size, capacity)</span>:</span></span><br><span class="line">    ......</span><br><span class="line">    queue = tf.train.slice_input_producer([image, label])</span><br><span class="line">    label = queue[<span class="number">1</span>]</span><br><span class="line">    image_c = tf.read_file(queue[<span class="number">0</span>])</span><br><span class="line">    image = tf.image.decode_jpeg(image_c, channels=<span class="number">3</span>)</span><br><span class="line">    <span class="comment"># resize to resize_w * resize_h</span></span><br><span class="line">    image = tf.image.resize_image_with_crop_or_pad(image, resize_w, resize_h)</span><br><span class="line">    <span class="comment"># standardize the pixel deep</span></span><br><span class="line">    image = tf.image.per_image_standardization(image)</span><br><span class="line"></span><br><span class="line">    image_batch, label_batch = tf.train.batch([image, label],</span><br><span class="line">                                              batch_size=batch_size,</span><br><span class="line">                                              num_threads=<span class="number">64</span>,</span><br><span class="line">                                              capacity=capacity)</span><br><span class="line">    images_batch = tf.cast(image_batch, tf.float32)</span><br><span class="line">    labels_batch = tf.reshape(label_batch, [batch_size])</span><br><span class="line">    <span class="keyword">return</span> images_batch, labels_batch</span><br><span class="line"><span class="keyword">pass</span></span><br></pre></td></tr></table></figure></p>
+<p>这里定义了批次数据的形状[None, resize_h, resize_w, 3]. 并标准化了图片的像素深度，同样用的也是 tf 自带的库函数。</p>
+<h1 id="model"><a href="#model" class="headerlink" title="model"></a>model</h1><p> 负责组装CNN模型并产生输出，其构造函数（就是<em>init()</em>函数，这也是Java里的叫法，抱歉我Python刚入门）接受两个参数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, channels=<span class="number">3</span>, classNum=<span class="number">10</span>)</span>:</span></span><br><span class="line">    <span class="comment"># define weights's shape</span></span><br><span class="line">    self.weights = &#123;</span><br><span class="line">        <span class="string">"w_conv1"</span>: self.weight_variable([<span class="number">5</span>, <span class="number">5</span>, channels, <span class="number">32</span>]),</span><br><span class="line">        <span class="string">"w_conv2"</span>: self.weight_variable([<span class="number">5</span>, <span class="number">5</span>, <span class="number">32</span>, <span class="number">64</span>]),</span><br><span class="line">        <span class="string">"w_fc1"</span>: self.weight_variable([<span class="number">7</span> * <span class="number">7</span> * <span class="number">64</span>, <span class="number">1024</span>]),</span><br><span class="line">        <span class="string">"w_fc2"</span>: self.weight_variable([<span class="number">1024</span>, classNum])</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># define biases's shape</span></span><br><span class="line">    self.biases = &#123;</span><br><span class="line">        <span class="string">"b_conv1"</span>: self.bias_variable([<span class="number">32</span>]),</span><br><span class="line">        <span class="string">"b_conv2"</span>: self.bias_variable([<span class="number">64</span>]),</span><br><span class="line">        <span class="string">"b_fc1"</span>: self.bias_variable([<span class="number">1024</span>]),</span><br><span class="line">        <span class="string">"b_fc2"</span>: self.bias_variable([classNum])</span><br><span class="line">    &#125;</span><br><span class="line"><span class="keyword">pass</span></span><br></pre></td></tr></table></figure></p>
+<p>channels 代表输入图片的通道数，对于 RGB 彩色图，这个值是3，这也是默认值，灰度图片只有一个通道，那么便要传入1。classNum 顾名思义指的是类别数量，数字识别有10个类，所以默认是10. 构造方法内初始化了卷积核的权值参数。<br>接下来便是该类里另一个方法，输出。<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">output_cnn</span><span class="params">(self, images, keep_prob)</span>:</span></span><br><span class="line">    ......</span><br><span class="line">    <span class="comment"># Dropout</span></span><br><span class="line">    hidden_fc1_dropout = tf.nn.dropout(hidden_fc1, keep_prob=keep_prob)</span><br><span class="line">    <span class="comment"># output layer without SoftMax</span></span><br><span class="line">    logits = tf.add(tf.matmul(hidden_fc1_dropout, self.weights[<span class="string">"w_fc2"</span>]), self.biases[<span class="string">"b_fc2"</span>])</span><br><span class="line">    <span class="keyword">return</span> logits</span><br></pre></td></tr></table></figure></p>
+<p>这个方法也接受两个参数，images 是输入数据，也就是input_local_data 类中的 image_batch，另一个参数 keep_prob 是指在全连接层之后采用 dropout 优化方法时，用于随机丢弃神经元的概率，训练的时候可以用0.5，测试的时候用1，随你定。不过值得注意的是，这里的输出层没有使用 softmax 函数做回归，而是在计算损失的时候和交叉熵一起算：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=logits)</span><br></pre></td></tr></table></figure></p>
+<p>为什么？实际上这是 Google 推荐的做法，softmax 只是做结果归一化，就是把各个维度的概率和变成1，缺少它并不会影响 accuracy 的计算结果，重要的是可以提高一定的计算效率。</p>
+<h1 id="training-graph"><a href="#training-graph" class="headerlink" title="training_graph"></a>training_graph</h1><p><strong>该类是了解 tf 编程思想的重点，都知道 tf 是符号编程，写代码的过程中就像是在画一张图，注意是数据流图的图，画完之后，tf 把这张图放到外部用 C 语言去执行，大大提高了运行效率。画图过程中用到的变量，可以用占位符去代替，当然，如果在画图的时候，变量就已经准备好了，直接传进去也可以。</strong></p>
+<p>该类就是负责“画”这样一张数据流图的，其构造方法也接受了上面讲过的三个参数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, channels, keep_prob, classNum)</span>:</span></span><br><span class="line">    self.channels = channels</span><br><span class="line">    self.keep_prob = keep_prob</span><br><span class="line">    self.classNum = classNum</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure></p>
+<p>因为在该类里要创建 model 类对象，需要把这三个参数传进去。<br>有一个方法还接受了训练数据集参数：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">build_graph_with_batch</span><span class="params">(self, img_batch, lab_batch)</span>:</span></span><br><span class="line">    <span class="comment"># calculate the loss from model output</span></span><br><span class="line">    cnn_model = model.ModelOfCNN(channels=self.channels, classNum=self.classNum)</span><br><span class="line">    logits = cnn_model.output_cnn(img_batch, keep_prob=self.keep_prob)</span><br><span class="line">    loss = self.get_loss(logits=logits, labels=lab_batch)</span><br><span class="line">    <span class="comment"># build a train graph</span></span><br><span class="line">    train_step = tf.train.AdamOptimizer(<span class="number">1e-4</span>).minimize(loss)</span><br><span class="line">    <span class="comment"># build a accuracy graph</span></span><br><span class="line">    accuracy = tf.nn.in_top_k(logits, lab_batch, <span class="number">1</span>)</span><br><span class="line">    accuracy = tf.cast(accuracy, tf.float16)</span><br><span class="line">    accuracy = tf.reduce_mean(accuracy)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> train_step, accuracy</span><br></pre></td></tr></table></figure></p>
+<p>包含了损失函数，梯度下降，以及识别精度的计算。最后返回经过梯度下降的 train_step 和 识别精度 accuracy，我个人把这两个张量理解为，图的入口。</p>
+<h1 id="args-manager"><a href="#args-manager" class="headerlink" title="args_manager"></a>args_manager</h1><p>这个类是用来保存/恢复训练数据的。</p>
+<h1 id="main"><a href="#main" class="headerlink" title="main"></a>main</h1><p>最后便是主函数，在这里只用把上面的几个模块组合起来便可以了，依次是，<br>获取本地数据集：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">input_data = ild.InputLocalData(<span class="string">'local_data/'</span>)</span><br><span class="line">img_batch, lab_batch = input_data.get_batches(resize_w=<span class="number">28</span>, resize_h=<span class="number">28</span>,</span><br><span class="line">                                              batch_size=<span class="number">5</span>, capacity=<span class="number">20</span>)</span><br></pre></td></tr></table></figure></p>
+<p>构建数据流图：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">graph = tg.TrainingGraph(channels=<span class="number">3</span>, keep_prob=<span class="number">1</span>, classNum=<span class="number">10</span>)</span><br><span class="line">train_step, acc = graph.build_graph_with_batch(img_batch, lab_batch)</span><br></pre></td></tr></table></figure></p>
+<p>初始化变量：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ys = input(<span class="string">"attention!!!\n    restore the variables? (y/n)\n"</span>)</span><br><span class="line"><span class="keyword">if</span> ys == <span class="string">'y'</span>:</span><br><span class="line">    args.restore()</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    init = tf.global_variables_initializer()</span><br><span class="line">    session.run(init)</span><br></pre></td></tr></table></figure></p>
+<p>训练：<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">coord = tf.train.Coordinator()</span><br><span class="line">threads = tf.train.start_queue_runners(sess=session, coord=coord)</span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    <span class="keyword">for</span> step <span class="keyword">in</span> np.arange(<span class="number">10</span>):</span><br><span class="line">        print(<span class="string">"training step: %d"</span> % step)</span><br><span class="line">        <span class="keyword">if</span> coord.should_stop():</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        train_step.run()</span><br><span class="line">        print(<span class="string">"accuracy: &#123;&#125;\n"</span>.format(acc.eval()))</span><br><span class="line">    <span class="comment"># Save the variables to disk.</span></span><br><span class="line">    args.save()</span><br><span class="line"><span class="keyword">except</span> tf.errors.OutOfRangeError:</span><br><span class="line">    print(<span class="string">"Done!!!"</span>)</span><br><span class="line"><span class="keyword">finally</span>:</span><br><span class="line">    coord.request_stop()</span><br><span class="line">coord.join(threads)</span><br></pre></td></tr></table></figure></p>
+<p>好了，整个demo基本上就这些重点。包结构里 test 文件夹里有一些测试的轮子。<br>码了这么多字我也累，代码有点多。完整的代码都在我的GitHub仓库里：</p>
+<p><a href="https://github.com/MeetDevin/PracticeOnTensorflow" target="_blank" rel="noopener">传送门</a></p>
+<p>欢迎各位大佬给我贡献代码！<br>本文首发于我的<a href="https://zhuanlan.zhihu.com/c_162295286" target="_blank" rel="noopener">知乎专栏</a>，请指教，以上。</p>
+ <!--提交百度推广-->
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/机器学习/" rel="tag"># 机器学习</a>
+          
+            <a href="/tags/卷积神经网络/" rel="tag"># 卷积神经网络</a>
+          
+            <a href="/tags/神经网络/" rel="tag"># 神经网络</a>
+          
+            <a href="/tags/TensorFlow/" rel="tag"># TensorFlow</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/08/201709至201802学习总结/" rel="next" title="2017/9-2018/2 学习总结">
+                <i class="fa fa-chevron-left"></i> 2017/9-2018/2 学习总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/05/18/ELM/" rel="prev" title="ELM">
+                ELM <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/mmexport1447158285856.jpg?x-oss-process=style/tuchuang" alt="Devin Zhang">
+            
+              <p class="site-author-name" itemprop="name">Devin Zhang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/MeetDevin" title="GitHub &rarr; https://github.com/MeetDevin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:meetdevin.zh@outlook.com" title="E-Mail &rarr; mailto:meetdevin.zh@outlook.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.douban.com/people/zxin94264/" title="豆瓣 &rarr; https://www.douban.com/people/zxin94264/" rel="noopener" target="_blank"><i class="fa fa-fw fa-cat"></i>豆瓣</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://steamcommunity.com/id/devinzhang" title="Steam &rarr; http://steamcommunity.com/id/devinzhang" rel="noopener" target="_blank"><i class="fa fa-fw fa-steam-symbol"></i>Steam</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#项目包结构"><span class="nav-number">1.</span> <span class="nav-text">项目包结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#input-local-data"><span class="nav-number">2.</span> <span class="nav-text">input_local_data</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#model"><span class="nav-number">3.</span> <span class="nav-text">model</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#training-graph"><span class="nav-number">4.</span> <span class="nav-text">training_graph</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#args-manager"><span class="nav-number">5.</span> <span class="nav-text">args_manager</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#main"><span class="nav-number">6.</span> <span class="nav-text">main</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Devin Zhang</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.6.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.6.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+  <script>
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: '6IN3m2rNpPb49i7J7Ufuf49P-gzGzoHsz',
+        appKey: 'DB1nkhJp3kavuO5Q529hfp4A',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<style>
+.MathJax_Display {
+    overflow: auto hidden;
+}
+</style>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('复制').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('复制成功');
+          else $(this).text('复制失败');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('复制');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>

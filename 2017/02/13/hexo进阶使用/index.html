@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="X--bvGxUwZFDt3DzIdIzUPWmIdqO0-ABy96oKEzidvc">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="在上一篇文章中，记录了我通过hexo+github来搭建博客的过程，本文提供导航功能，介绍一些hexo的进阶用法，让博客显得更有范儿！不过我还是建议大家多关注博客内容，而不是沉迷于折腾中无法自拔 : ) 如何应对错误？在使用命令行搭建博客的过程中，不可避免的会出现错误，如果你是新手，不要慌，这种情况对于有经验的程序员来说，已经是家常便饭了: ) ，不过我可以教大家两个常用的应对错误的方法,错误代码">
+<meta name="keywords" content="github,hexo,搭建网站,个人博客,markdown">
+<meta property="og:type" content="article">
+<meta property="og:title" content="hexo进阶使用">
+<meta property="og:url" content="http://yoursite.com/2017/02/13/hexo进阶使用/index.html">
+<meta property="og:site_name" content="Devin&#39;s blog">
+<meta property="og:description" content="在上一篇文章中，记录了我通过hexo+github来搭建博客的过程，本文提供导航功能，介绍一些hexo的进阶用法，让博客显得更有范儿！不过我还是建议大家多关注博客内容，而不是沉迷于折腾中无法自拔 : ) 如何应对错误？在使用命令行搭建博客的过程中，不可避免的会出现错误，如果你是新手，不要慌，这种情况对于有经验的程序员来说，已经是家常便饭了: ) ，不过我可以教大家两个常用的应对错误的方法,错误代码">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-12-23T11:11:37.652Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="hexo进阶使用">
+<meta name="twitter:description" content="在上一篇文章中，记录了我通过hexo+github来搭建博客的过程，本文提供导航功能，介绍一些hexo的进阶用法，让博客显得更有范儿！不过我还是建议大家多关注博客内容，而不是沉迷于折腾中无法自拔 : ) 如何应对错误？在使用命令行搭建博客的过程中，不可避免的会出现错误，如果你是新手，不要慌，这种情况对于有经验的程序员来说，已经是家常便饭了: ) ，不过我可以教大家两个常用的应对错误的方法,错误代码">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/02/13/hexo进阶使用/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>hexo进阶使用 | Devin's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Devin's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">路尽隐香处，翩然雪海间</h1>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/guestbook/" rel="section"><i class="menu-item-icon fa fa-fw fa-comment"></i> <br>留言</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/02/13/hexo进阶使用/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Devin Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/mmexport1447158285856.jpg?x-oss-process=style/tuchuang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Devin's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">hexo进阶使用
+
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2017-02-13 20:09:48" itemprop="dateCreated datePublished" datetime="2017-02-13T20:09:48+08:00">2017-02-13</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-12-23 19:11:37" itemprop="dateModified" datetime="2018-12-23T19:11:37+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/02/13/hexo进阶使用/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2017/02/13/hexo进阶使用/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在<a href="https://meetdevin.cn/2017/02/10/course/" target="_blank" rel="noopener">上一篇文章</a>中，记录了我通过hexo+github来搭建博客的过程，本文提供导航功能，介绍一些hexo的进阶用法，让博客显得更有范儿！不过我还是建议大家多关注博客内容，而不是沉迷于折腾中无法自拔 : )</p>
+<h1 id="如何应对错误？"><a href="#如何应对错误？" class="headerlink" title="如何应对错误？"></a>如何应对错误？</h1><p>在使用命令行搭建博客的过程中，不可避免的会出现错误，如果你是新手，不要慌，这种情况对于有经验的程序员来说，已经是家常便饭了: ) ，不过我可以教大家两个常用的应对错误的方法,错误代码同常在一大堆不知所云的英文字母开头几行，如ERROR balabala，can`t find/load balabala,在其后会跟着出错的文件位置，可以做以下两点：</p>
+<ul>
+<li>去出错的文件，具体到行，列，如果你看得懂代码，你大概会知道错在哪</li>
+<li>复制错误信息至搜索引擎寻求网友帮助<a id="more"></a>
+</li>
+</ul>
+<p>另外，在<strong>站点配置文件</strong><code>_config.yml</code>中，如果你启用了插件<code>plugins:</code>，hexo server(简写为hexo s)命令会无法识别，我也不知道为什么，这是个bug，把相关代码用<code>#</code>注释掉就行了，不会影响到插件的使用。</p>
+<h1 id="配置你喜欢的hexo主题"><a href="#配置你喜欢的hexo主题" class="headerlink" title="配置你喜欢的hexo主题"></a>配置你喜欢的hexo主题</h1><p><a href="">hexo官网</a>已经提供了一部分的主题，从中选择你喜欢的一个，为你的博客换件新衣服，不过还有许多主题并没有收录到官网里，这要靠你自己去发现了。每个主题都会有安装使用的介绍，有些是官方文档，有些在相应的github主页上，他们的使用大多是一样的：</p>
+<ul>
+<li>clone到本地hexo-site/theme</li>
+<li>修改<strong>站点配置文件</strong><code>_config.yml</code>里的theme字段为刚下载的主题文件夹名</li>
+<li>修改一系列个人信息、集成插件、主题布局字段</li>
+</ul>
+<p>具体以<a href="https://theme-next.org/docs/" target="_blank" rel="noopener">NexT主题官方说明文档</a>为例，不懂的地方可以问我<a href="mailto:meetdevin.zh@outlook.com" target="_blank" rel="noopener">meetdevin.zh@outlook.com</a>.</p>
+<h1 id="绑定独立域名"><a href="#绑定独立域名" class="headerlink" title="绑定独立域名"></a>绑定独立域名</h1><blockquote>
+<p>首先，我要给大家简单介绍下，这里面的思路。域名与IP有什么区别？</p>
+</blockquote>
+<p>IP是每台主机的唯一标识，是一串数字，就相当于身份证，当我们的浏览器访问一个网站的时候，首先要找到IP，而域名是为了方便人们记忆而产生的符合人们语言习惯的标识DNS，而DNS就是他们两者的映射表，你可以理解为翻译官。现在你的域名是<code>your_site.github.io</code>,当你在浏览器键入这个地址，你想要浏览器显示github上你的网站资源， 你的电脑会先检查本地的DNS缓存，是否有这个地址的对应IP，如果没有，则会请求当前子网的DNS服务器，DNS服务器返回相应的IP地址，而如果这个DNS服务器也没有，它会把请求发给上一级子网的DNS服务器，层层递进，这就叫<strong>域名解析</strong>。现在我们的目的就明确了：把你的独立域名解析到github。具体来说：</p>
+<ul>
+<li>购买独立域名</li>
+<li>设置DNS解析</li>
+<li>让github认可我们的域名</li>
+</ul>
+<h2 id="购买独立域名"><a href="#购买独立域名" class="headerlink" title="购买独立域名"></a>购买独立域名</h2><p>域名提供商有很多，有<a href="https://www.dnspod.cn/" target="_blank" rel="noopener">DNSPod</a> ， <a href="https://www.gandi.net/?lang=zh-hans" target="_blank" rel="noopener">Gandi</a>，<a href="https://wanwang.aliyun.com/" target="_blank" rel="noopener">阿里云</a>等，都支持支付宝付款。我推荐<a href="https://www.dnspod.cn/" target="_blank" rel="noopener">DNSPod</a>，因为他提供免费的DNS解析服务。</p>
+<h2 id="设置DNS解析"><a href="#设置DNS解析" class="headerlink" title="设置DNS解析"></a>设置DNS解析</h2><p>无论在哪里购买，都要设置DNS服务器，如果你使用DNSPod的域名解析服务，在控制台里把DNS服务器地址改为：<code>f1g1ns1.dnspod.net</code> 和 <code>f1g1ns2.dnspod.net</code>，参考<a href="https://support.dnspod.cn/Kb/showarticle/?qtype=%E5%8A%9F%E8%83%BD%E4%BB%8B%E7%BB%8D%E5%8F%8A%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B&amp;tsid=178" target="_blank" rel="noopener">DNSPod 各个套餐的 DNS 地址</a>。</p>
+<h2 id="让github认可我们独立域名"><a href="#让github认可我们独立域名" class="headerlink" title="让github认可我们独立域名"></a>让github认可我们独立域名</h2><p>在hexo-site/sourse下新建文本文档，重命名为<code>CNAME</code>，注意没有后缀，在里面写上你的域名，如：<code>your_site.com</code>，保存，然后编译上传：<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br></pre></td></tr></table></figure></p>
+<h1 id="优化你的博客加载速度"><a href="#优化你的博客加载速度" class="headerlink" title="优化你的博客加载速度"></a>优化你的博客加载速度</h1><p>如果你使用了一个比较牛掰的主题，图片资源较多，或者大量使用了HTML5，这就比较吃性能了，你会发现在浏览器进你的博客比进小伙伴们的都要慢，那怎么办呢？不怕，我给大家挑出了几个靠谱的方案：</p>
+<ul>
+<li><a href="https://yq.aliyun.com/articles/8608" target="_blank" rel="noopener">性能优化篇-joway</a></li>
+<li><a href="http://www.joryhe.com/2016-06-05-hexo_site_seo_speed_more_optimization.html" target="_blank" rel="noopener">Hexo博客优化-Jory He</a></li>
+</ul>
+<p>这两篇博文都放了一些干货，如果你喜欢折腾，就去试试他们的方法，但你如果是像我这样比较懒的，那我也给你推荐一个立竿见影的方法:</p>
+<blockquote>
+<p>将<strong>站点配置文件</strong><code>hexo-site/_config.yml</code>和<strong>主题配置文件</strong><code>hexo-site/theme/theme_name/_config.yml</code>中，需要用到的图片，还有你在博文里插入的图片，都放到<a href="https://www.qiniu.com/products/kodo" target="_blank" rel="noopener">七牛云-对象存储</a>里。</p>
+</blockquote>
+<p>其实，这个七牛云-对象存储，大家可以理解为：网盘(但其实不是的，七牛云是CDN，是一种缓存机制，CDN=多台服务器+智能DNS)，因为github服务器在国外（之前还被墙过），而七牛云本身就是做云服务的，你从七牛云里拿图片，肯定是比从github拿图片要快的，还能为你节省github page存储，一举两得！</p>
+<h1 id="推广"><a href="#推广" class="headerlink" title="推广"></a>推广</h1><p>既然搭了博客，那肯定要很多人看才有意思，第一步当然是要让搜索引擎发现我们，至于google在大陆的…科学上网跨过去就好了，让google收录是很简单的，百度反而有点矫情。</p>
+<h2 id="收录"><a href="#收录" class="headerlink" title="收录"></a>收录</h2><p>在<a href="http://zhanzhang.baidu.com/site/index" target="_blank" rel="noopener">百度-站长工具</a>，<a href="https://www.google.com/url?sa=t&amp;rct=j&amp;q=&amp;esrc=s&amp;source=web&amp;cd=1&amp;cad=rja&amp;uact=8&amp;ved=0ahUKEwjo7uaI7o7SAhUCh1QKHbtCCeUQFggaMAA&amp;url=https%3A%2F%2Fwww.google.com%2Fintl%2Fzh-CN%2Fsubmit_content.html&amp;usg=AFQjCNH3HR6X8dyDQsYD2j3-NkqX_p4dTw&amp;sig2=vUglcPBtuDSJGCIckbwIcQ" target="_blank" rel="noopener">google提交入口</a>先手动提交我们的网站，在提交之后，会验证网站所有权，这样才能收录我们的网站，他们都有这么几种验证方式：</p>
+<ul>
+<li>文件验证</li>
+<li>HTML标签验证</li>
+<li>CNAME验证</li>
+</ul>
+<p>我个人觉得HTML标签验证最简单，点击HTML标签验证，然后点击显示完整代码，将代码复制到你的最新一篇博文的开头，然后<br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo g -d</span><br></pre></td></tr></table></figure></p>
+<p>直接发布博文就好了。但是对于google，我试了好几次都没成功，最后用的文件验证：</p>
+<blockquote>
+<p>下载该HTML文件，放到你的<code>hexo-site/public</code>目录，然后：</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
+<p>这时，可以在浏览器通过<code>http://your_site.com/name.html</code>访问该文件，这时再在google上点击验证。</p>
+<h2 id="提交sitemap"><a href="#提交sitemap" class="headerlink" title="提交sitemap"></a>提交sitemap</h2><p>sitemap是你的站点地图，它列出你网站上的网页，将网站内容的组织架构告知搜索引擎。</p>
+<blockquote>
+<p>安装插件：</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-generator-sitemap --save </span><br><span class="line">npm install hexo-generator-baidu-sitemap --save</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>在<strong>站点配置文件</strong><code>hexo-site/_config.yml</code>中添加以下代码：</p>
+</blockquote>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 自动生成sitemap</span><br><span class="line">sitemap:</span><br><span class="line"> path: sitemap.xml #注意前面有空格</span><br><span class="line">baidusitemap:</span><br><span class="line"> path: baidusitemap.xml #注意前面有空格</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>编译上传</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
+<p>在<code>hexo/public</code>目录下可找到<code>sitemap.xml</code>和<code>baidusitemap.xml</code>文件，我们先验证下：</p>
+<blockquote>
+<p>浏览器访问<code>http://your_site.com/sitemap.xml</code><br>和<code>http://your_site.com/baidusitemap.xml</code></p>
+</blockquote>
+<p>如果出现一堆代码，说明生成成功，然后进入<a href="http://zhanzhang.baidu.com/" target="_blank" rel="noopener">百度站长工具</a></p>
+<ul>
+<li>点击左侧<strong>链接提交</strong></li>
+<li>下拉，自动提交,选择sitemap</li>
+<li>填写<code>http://your_site/baidusitemap.xml</code>,提交</li>
+</ul>
+<p>同样进入<a href="https://www.google.com/webmasters/tools" target="_blank" rel="noopener">Google站长工具</a>提交sitemap.xml，吐槽一句，google比百度方便多了。</p>
+<blockquote>
+<p>以后每次我们执行<code>hexo g -d</code>命令的时候，这两个站点地图文件就会更新，搜索引擎便能通过上面两个网址抓取我们的内容。</p>
+</blockquote>
+<h2 id="自动推送"><a href="#自动推送" class="headerlink" title="自动推送"></a>自动推送</h2><p>这个功能只有百度有，上面步骤完成之后，再点击自动提交-&gt;自动推送，复制百度给出的代码，留着，以后每次写博文，就粘贴到博文结尾位置，对博文内容没有任何影响，这段JS代码的作用是：页面被访问时，页面URL将立即被推送给百度。</p>
+<h1 id="方便写作"><a href="#方便写作" class="headerlink" title="方便写作"></a>方便写作</h1><p>在<code>hexo/sourse/scaffolds</code>目录下，放的是我们的文章模板，有三个，默认是<code>post</code>，这个可以在<strong>站点配置文件</strong><code>hexo-site/_config.yml</code>中更改，我们可以自定义post的内容以便符合我们的使用习惯。</p>
+<blockquote>
+<p>你可以执行下列命令来创建一篇新文章。</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo <span class="keyword">new</span> layout title</span><br></pre></td></tr></table></figure>
+<p>在命令中指定文章的模板，不写就默认为post，title指文章标题。</p>
+<h2 id="基本属性"><a href="#基本属性" class="headerlink" title="基本属性"></a>基本属性</h2><blockquote>
+<p>Front-matter 是文章最上方以 —- 分隔的区域，用于指定文章的变量，常用的有：</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">title: Hello World</span><br><span class="line">date: <span class="number">2013</span>/<span class="number">7</span>/<span class="number">13</span> <span class="number">20</span>:<span class="number">46</span>:<span class="number">25</span></span><br><span class="line">tags:</span><br><span class="line"> - 标签<span class="number">1</span></span><br><span class="line"> - 标签<span class="number">2</span></span><br><span class="line">categories:  </span><br><span class="line"> - 分类<span class="number">1</span></span><br><span class="line"> - 分类2  #hexo不支持多个同级分类，这样分类，会把分类2变成分类1的子类</span><br><span class="line">comments: true #开启文章评论</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
+<p>我们可以把这些都写到模板中，不用每次都写，另外，我们之前复制的百度自动提交JS也可以放的文章模板里，是不是很方便？</p>
+<h2 id="标签"><a href="#标签" class="headerlink" title="标签"></a>标签</h2><p>「标签」(Tag Plugin) 是 Hexo 提供的一种快速生成特定内容的方式。完整的标签列表可以参考<a href="http://theme-next.iissnan.com/tag-plugins.html" target="_blank" rel="noopener">内置标签</a>。 另外，Hexo 也开放来接口给主题，使主题有可能提供给写作者更简便的写作方法。这里介绍一个常用的，插入图片，同时指定图片大小：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--指定大小图片--&gt;</span><br><span class="line">&#123;% img [class names] /path/to/image [width] [height] [title text [alt text]] %&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="文章摘录"><a href="#文章摘录" class="headerlink" title="文章摘录"></a>文章摘录</h2><p>在首页显示一篇文章的部分内容，并提供一个链接跳转到全文页面是一个常见的需求。某些主题有这样的功能集成，但还是推荐hexo官方的方法，这样除了可以精确控制需要显示的摘录内容以外，这种方式也可以让 Hexo 中的插件更好的识别：</p>
+<blockquote>
+<p>在文章中使用 <code>&lt;!-- more --&gt;</code>手动进行截断</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ba la ba la </span><br><span class="line"> &lt;!-- more --&gt;</span><br><span class="line">ji xu ba la ba la</span><br></pre></td></tr></table></figure>
+<p>使用位置在一行的顶左空一行，不然无效，这是博主试了很多遍试出来的。</p>
+<blockquote>
+<p>更多语法规则：</p>
+</blockquote>
+<ul>
+<li><a href="https://hexo.io/zh-cn/docs/writing.html" target="_blank" rel="noopener">写作-hexo官网</a></li>
+<li><a href="http://zh.mweb.im/markdown-syntax-guide-suggest-version-zh.html" target="_blank" rel="noopener">Markdown 语法</a></li>
+</ul>
+<h1 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h1><p>折腾的过程中，会对<strong>站点配置文件</strong><code>hexo-site\ _config.yml</code>改来改去，这有一份备份，配置参考<a href="https://hexo.io/zh-cn/docs/configuration.html" target="_blank" rel="noopener">配置-hexo官网</a><br><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"># Hexo Configuration</span><br><span class="line">## Docs: http://zespia.tw/hexo/docs/configure.html</span><br><span class="line">## Source: https://github.com/tommy351/hexo/</span><br><span class="line"></span><br><span class="line"># Site</span><br><span class="line">title: my blog #站点名，站点左上角</span><br><span class="line">subtitle: Walk steps step by step #副标题，站点左上角</span><br><span class="line">description: Walk steps step by step #给搜索引擎看的，对站点的描述，可以自定义</span><br><span class="line">author: zippera #博主</span><br><span class="line">email: #你的联系邮箱</span><br><span class="line">language: zh-CN #中文</span><br><span class="line"></span><br><span class="line"># URL #这项暂不配置，绑定域名后，欲创建sitemap.xml需要配置该项</span><br><span class="line">## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'</span><br><span class="line">url: http:<span class="comment">//zipperary.com</span></span><br><span class="line">root: <span class="regexp">/</span></span><br><span class="line"><span class="regexp">permalink: :year/</span>:month/:day/:title/</span><br><span class="line">tag_dir: tags</span><br><span class="line">archive_dir: archives</span><br><span class="line">category_dir: categories</span><br><span class="line"></span><br><span class="line"># Writing 文章布局、写作格式的定义，不修改</span><br><span class="line">new_post_name: :title.md # File name of new posts</span><br><span class="line">default_layout: post</span><br><span class="line">auto_spacing: false # Add spaces between asian characters and western characters</span><br><span class="line">titlecase: false # Transform title into titlecase</span><br><span class="line">max_open_file: <span class="number">100</span></span><br><span class="line">filename_case: <span class="number">0</span></span><br><span class="line">highlight:</span><br><span class="line">  enable: <span class="literal">true</span></span><br><span class="line">  backtick_code_block: <span class="literal">true</span></span><br><span class="line">  line_number: <span class="literal">true</span></span><br><span class="line">  tab_replace:</span><br><span class="line"></span><br><span class="line"># Category &amp; Tag</span><br><span class="line">default_category: uncategorized</span><br><span class="line">category_map:</span><br><span class="line">tag_map:</span><br><span class="line"></span><br><span class="line"># Archives 默认值为2，这里都修改为1，相应页面就只会列出标题，而非全文</span><br><span class="line">## 2: Enable pagination</span><br><span class="line">## 1: Disable pagination</span><br><span class="line">## 0: Fully Disable</span><br><span class="line">archive: <span class="number">1</span></span><br><span class="line">category: <span class="number">1</span></span><br><span class="line">tag: <span class="number">1</span></span><br><span class="line"></span><br><span class="line"># Server 不修改</span><br><span class="line">## Hexo uses Connect as a server</span><br><span class="line">## You can customize the logger format as defined in</span><br><span class="line">## http://www.senchalabs.org/connect/logger.html</span><br><span class="line">port: <span class="number">4000</span></span><br><span class="line">logger: <span class="literal">false</span></span><br><span class="line">logger_format:</span><br><span class="line"></span><br><span class="line"># Date / Time format 日期格式，不修改</span><br><span class="line">## Hexo uses Moment.js to parse and display date</span><br><span class="line">## You can customize the date format as defined in</span><br><span class="line">## http://momentjs.com/docs/#/displaying/format/</span><br><span class="line">date_format: MMM D YYYY</span><br><span class="line">time_format: H:mm:ss</span><br><span class="line"></span><br><span class="line"># Pagination 每页显示文章数，可以自定义，我将10改成了5</span><br><span class="line">## Set per_page to 0 to disable pagination</span><br><span class="line">per_page: <span class="number">5</span></span><br><span class="line">pagination_dir: page</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># Extensions 这里配置站点所用主题和插件，暂默认，后面会介绍怎么修改</span><br><span class="line">## Plugins: https://github.com/tommy351/hexo/wiki/Plugins</span><br><span class="line">## Themes: https://github.com/tommy351/hexo/wiki/Themes</span><br><span class="line">theme: light</span><br><span class="line">exclude_generator:</span><br><span class="line">plugins:</span><br><span class="line">- hexo-generator-feed</span><br><span class="line">- hexo-generator-sitemap</span><br><span class="line"></span><br><span class="line"># Deployment 站点部署到github要配置，上一节中已经讲过</span><br><span class="line">## Docs: http://zespia.tw/hexo/docs/deploy.html</span><br><span class="line">deploy:</span><br><span class="line">  type: github</span><br><span class="line">  repository: https:<span class="comment">//github.com/zippera/zippera.github.io.git</span></span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure></p>
+<!--提交百度推广-->
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';        
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/github/" rel="tag"># github</a>
+          
+            <a href="/tags/hexo/" rel="tag"># hexo</a>
+          
+            <a href="/tags/搭建网站/" rel="tag"># 搭建网站</a>
+          
+            <a href="/tags/个人博客/" rel="tag"># 个人博客</a>
+          
+            <a href="/tags/markdown/" rel="tag"># markdown</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/10/course/" rel="next" title="hexo个人博客搭建">
+                <i class="fa fa-chevron-left"></i> hexo个人博客搭建
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/26/Remote_Service使用之IPC/" rel="prev" title="Remote Service使用之IPC">
+                Remote Service使用之IPC <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/mmexport1447158285856.jpg?x-oss-process=style/tuchuang" alt="Devin Zhang">
+            
+              <p class="site-author-name" itemprop="name">Devin Zhang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/MeetDevin" title="GitHub &rarr; https://github.com/MeetDevin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:meetdevin.zh@outlook.com" title="E-Mail &rarr; mailto:meetdevin.zh@outlook.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.douban.com/people/zxin94264/" title="豆瓣 &rarr; https://www.douban.com/people/zxin94264/" rel="noopener" target="_blank"><i class="fa fa-fw fa-cat"></i>豆瓣</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://steamcommunity.com/id/devinzhang" title="Steam &rarr; http://steamcommunity.com/id/devinzhang" rel="noopener" target="_blank"><i class="fa fa-fw fa-steam-symbol"></i>Steam</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#如何应对错误？"><span class="nav-number">1.</span> <span class="nav-text">如何应对错误？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#配置你喜欢的hexo主题"><span class="nav-number">2.</span> <span class="nav-text">配置你喜欢的hexo主题</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#绑定独立域名"><span class="nav-number">3.</span> <span class="nav-text">绑定独立域名</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#购买独立域名"><span class="nav-number">3.1.</span> <span class="nav-text">购买独立域名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#设置DNS解析"><span class="nav-number">3.2.</span> <span class="nav-text">设置DNS解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#让github认可我们独立域名"><span class="nav-number">3.3.</span> <span class="nav-text">让github认可我们独立域名</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#优化你的博客加载速度"><span class="nav-number">4.</span> <span class="nav-text">优化你的博客加载速度</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#推广"><span class="nav-number">5.</span> <span class="nav-text">推广</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#收录"><span class="nav-number">5.1.</span> <span class="nav-text">收录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#提交sitemap"><span class="nav-number">5.2.</span> <span class="nav-text">提交sitemap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自动推送"><span class="nav-number">5.3.</span> <span class="nav-text">自动推送</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#方便写作"><span class="nav-number">6.</span> <span class="nav-text">方便写作</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本属性"><span class="nav-number">6.1.</span> <span class="nav-text">基本属性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#标签"><span class="nav-number">6.2.</span> <span class="nav-text">标签</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文章摘录"><span class="nav-number">6.3.</span> <span class="nav-text">文章摘录</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#附录"><span class="nav-number">7.</span> <span class="nav-text">附录</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Devin Zhang</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.6.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.6.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+  <script>
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: '6IN3m2rNpPb49i7J7Ufuf49P-gzGzoHsz',
+        appKey: 'DB1nkhJp3kavuO5Q529hfp4A',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<style>
+.MathJax_Display {
+    overflow: auto hidden;
+}
+</style>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('复制').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('复制成功');
+          else $(this).text('复制失败');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('复制');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>

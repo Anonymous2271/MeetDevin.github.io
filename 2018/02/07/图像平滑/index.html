@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <meta name="google-site-verification" content="X--bvGxUwZFDt3DzIdIzUPWmIdqO0-ABy96oKEzidvc">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.6.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.ico?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon.ico?v=6.6.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon.ico?v=6.6.0">
+
+
+  <link rel="mask-icon" href="/images/favicon.ico?v=6.6.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.6.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="图像平滑图像平滑处理可以帮助去除图像噪音。一般是逐个对图像中单个像素点进行处理，在转换为矩阵后，即是对矩阵中单个元素进行重新赋值，根据赋值算法的不同，分为均值滤波，中值滤波等。简单来说，均值滤波即是在像素点的周围领域点取平均值，再将其赋给该像素点。 在实验中，均值滤波算法无法对边界噪音，线段型噪音进行过滤，而采用中值滤波算法则可以。本文记录下了中值滤波的实现原理，作为学习笔记。">
+<meta name="keywords" content="图像处理,matlab">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图像平滑">
+<meta property="og:url" content="http://yoursite.com/2018/02/07/图像平滑/index.html">
+<meta property="og:site_name" content="Devin&#39;s blog">
+<meta property="og:description" content="图像平滑图像平滑处理可以帮助去除图像噪音。一般是逐个对图像中单个像素点进行处理，在转换为矩阵后，即是对矩阵中单个元素进行重新赋值，根据赋值算法的不同，分为均值滤波，中值滤波等。简单来说，均值滤波即是在像素点的周围领域点取平均值，再将其赋给该像素点。 在实验中，均值滤波算法无法对边界噪音，线段型噪音进行过滤，而采用中值滤波算法则可以。本文记录下了中值滤波的实现原理，作为学习笔记。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/%E5%9B%BE%E5%83%8F%E5%B9%B3%E6%BB%91.jpg?x-oss-process=style/tuchuang">
+<meta property="og:image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/%E8%BE%B9%E7%95%8C%E6%89%A9%E5%85%85%E8%AF%B4%E6%98%8E%E5%9B%BE.bmp?x-oss-process=style/tuchuang">
+<meta property="og:updated_time" content="2018-12-23T13:41:00.048Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="图像平滑">
+<meta name="twitter:description" content="图像平滑图像平滑处理可以帮助去除图像噪音。一般是逐个对图像中单个像素点进行处理，在转换为矩阵后，即是对矩阵中单个元素进行重新赋值，根据赋值算法的不同，分为均值滤波，中值滤波等。简单来说，均值滤波即是在像素点的周围领域点取平均值，再将其赋给该像素点。 在实验中，均值滤波算法无法对边界噪音，线段型噪音进行过滤，而采用中值滤波算法则可以。本文记录下了中值滤波的实现原理，作为学习笔记。">
+<meta name="twitter:image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/%E5%9B%BE%E5%83%8F%E5%B9%B3%E6%BB%91.jpg?x-oss-process=style/tuchuang">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/02/07/图像平滑/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>图像平滑 | Devin's blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion .logo-line-before i { left: initial; }
+    .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Devin's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <h1 class="site-subtitle" itemprop="description">路尽隐香处，翩然雪海间</h1>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-guestbook">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/guestbook/" rel="section"><i class="menu-item-icon fa fa-fw fa-comment"></i> <br>留言</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/02/07/图像平滑/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Devin Zhang">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/mmexport1447158285856.jpg?x-oss-process=style/tuchuang">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Devin's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h2 class="post-title" itemprop="name headline">图像平滑
+
+              
+            
+          </h2>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2018-02-07 18:00:00" itemprop="dateCreated datePublished" datetime="2018-02-07T18:00:00+08:00">2018-02-07</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2018-12-23 21:41:00" itemprop="dateModified" datetime="2018-12-23T21:41:00+08:00">2018-12-23</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2018/02/07/图像平滑/#comments" itemprop="discussionUrl">
+                  <span class="post-meta-item-text">评论数：</span> <span class="post-comments-count valine-comment-count" data-xid="/2018/02/07/图像平滑/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <img src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/%E5%9B%BE%E5%83%8F%E5%B9%B3%E6%BB%91.jpg?x-oss-process=style/tuchuang">
+<h1 id="图像平滑"><a href="#图像平滑" class="headerlink" title="图像平滑"></a>图像平滑</h1><p>图像平滑处理可以帮助去除图像噪音。一般是逐个对图像中单个像素点进行处理，在转换为矩阵后，即是对矩阵中单个元素进行重新赋值，根据赋值算法的不同，分为均值滤波，中值滤波等。简单来说，均值滤波即是在像素点的周围领域点取平均值，再将其赋给该像素点。</p>
+<p>在实验中，均值滤波算法无法对边界噪音，线段型噪音进行过滤，而采用中值滤波算法则可以。本文记录下了中值滤波的实现原理，作为学习笔记。<br> <a id="more"></a></p>
+<h2 id="文件一：主函数"><a href="#文件一：主函数" class="headerlink" title="文件一：主函数"></a>文件一：主函数</h2><h3 id="参数准备"><a href="#参数准备" class="headerlink" title="参数准备"></a>参数准备</h3><p>获取图像矩阵 X，并产生随机噪点。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">x=imread('sy1.bmp');    % 带噪音图像x</span><br><span class="line">R=<span class="number">3</span>;                    % 平滑邻域半径R</span><br><span class="line">s=<span class="number">1</span>;                    % 填充方式选择s</span><br><span class="line"></span><br><span class="line">%</span><br><span class="line">%随机产生噪音</span><br><span class="line">%</span><br><span class="line">[m,n]=size(x);</span><br><span class="line">u = [<span class="number">0</span>,<span class="number">255</span>]; %黑/白点</span><br><span class="line"><span class="keyword">for</span> mun_of_noise=<span class="number">1</span>:<span class="number">1</span>:<span class="number">200</span></span><br><span class="line">    randi_x = randi([<span class="number">1</span>,m]);  %生成 <span class="number">1</span>-m 的随机整数</span><br><span class="line">    randi_y = randi([<span class="number">1</span>,n]);</span><br><span class="line">    x(randi_x,randi_y) = u(randi([<span class="number">1</span>,<span class="number">2</span>]));</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<h3 id="调用函数"><a href="#调用函数" class="headerlink" title="调用函数"></a>调用函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">y = zhangxin_pinghua(x,R,s);       % 得到平滑图像y</span><br></pre></td></tr></table></figure>
+<h3 id="结果显示"><a href="#结果显示" class="headerlink" title="结果显示"></a>结果显示</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">figure,</span><br><span class="line">subplot(1,2,1),imshow(x);title('原始图像');</span><br><span class="line">text(45,170,'原始图像 x');</span><br><span class="line">subplot(1,2,2),imshow(y);title('平滑图像');</span><br><span class="line">text(40,160,strcat('邻域半径R=',num2str(R)));</span><br><span class="line">text(45,180,'平滑图像 y');</span><br></pre></td></tr></table></figure>
+<h2 id="文件二：平滑函数"><a href="#文件二：平滑函数" class="headerlink" title="文件二：平滑函数"></a>文件二：平滑函数</h2><h3 id="灰度简化"><a href="#灰度简化" class="headerlink" title="灰度简化"></a>灰度简化</h3><p>灰度图像只有一个通道，方便处理，本次实验采用的就是灰度图像，处理彩色图像需要在最外层加上 for 循环，我试了下，有个bug，悬而未解。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">function [ph]=zhangxin_pinghua(ys,r,s)</span><br><span class="line"></span><br><span class="line">[m,n,z]=size(ys);</span><br><span class="line"><span class="keyword">if</span> (r&gt;m || r&gt;n)</span><br><span class="line">    error('邻域大小超过图像尺寸！');</span><br><span class="line">end</span><br><span class="line"></span><br><span class="line">% matlab 读入的图像是 uint8类型，ph作为函数返回值</span><br><span class="line">ph = uint8(zeros(m,n)); </span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> z&gt;<span class="number">1</span></span><br><span class="line">    x = rgb2gray(ys); % 彩色图像转为灰值图像</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    x = ys;</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<h3 id="边界扩充"><a href="#边界扩充" class="headerlink" title="边界扩充"></a>边界扩充</h3><p>边界扩充是为了在处理图片边界的时候，让边界像素点具有与内部像素点一样大小的领域，从而保持变换前后图片大小不变。</p>
+<img src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/%E8%BE%B9%E7%95%8C%E6%89%A9%E5%85%85%E8%AF%B4%E6%98%8E%E5%9B%BE.bmp?x-oss-process=style/tuchuang">
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">t=uint8(zeros(m+<span class="number">2</span>*r,n+<span class="number">2</span>*r));</span><br><span class="line">  </span><br><span class="line">t(r+<span class="number">1</span>:m+r,r+<span class="number">1</span>:n+r) = x; %把 x 放在 t 中间</span><br><span class="line"><span class="keyword">switch</span> s                                        % 填充方式选择</span><br><span class="line">    <span class="keyword">case</span> <span class="number">0</span>                                      % 非对称填充，按顺序复制</span><br><span class="line">        t(r+<span class="number">1</span>:m+r,<span class="number">1</span>:r)=x(<span class="number">1</span>:m,<span class="number">1</span>:r);</span><br><span class="line">        t(r+<span class="number">1</span>:m+r,n+r+<span class="number">1</span>:n+<span class="number">2</span>*r)=x(<span class="number">1</span>:m,n-r+<span class="number">1</span>:n);</span><br><span class="line">        t(<span class="number">1</span>:r,<span class="number">1</span>:n+<span class="number">2</span>*r)=t(r+<span class="number">1</span>:<span class="number">2</span>*r,<span class="number">1</span>:n+<span class="number">2</span>*r);</span><br><span class="line">        t(m+r+<span class="number">1</span>:m+<span class="number">2</span>*r,<span class="number">1</span>:n+<span class="number">2</span>*r)=t(m:m+r<span class="number">-1</span>,<span class="number">1</span>:n+<span class="number">2</span>*r);</span><br><span class="line">    <span class="keyword">case</span> <span class="number">1</span>                                      % 对称填充</span><br><span class="line">        <span class="keyword">for</span> i=<span class="number">1</span>:r</span><br><span class="line">            t(r+<span class="number">1</span>:m+r,i)=x(<span class="number">1</span>:m,r-i+<span class="number">1</span>);          % 左，列，从外到内复制</span><br><span class="line">            t(r+<span class="number">1</span>:m+r,n+r+i)=x(<span class="number">1</span>:m,n+<span class="number">1</span>-i);      % 右</span><br><span class="line">        end</span><br><span class="line">        <span class="keyword">for</span> i=<span class="number">1</span>:r</span><br><span class="line">            t(i,<span class="number">1</span>:n+<span class="number">2</span>*r)=t(<span class="number">2</span>*r+<span class="number">1</span>-i,<span class="number">1</span>:n+<span class="number">2</span>*r);    % 上，行</span><br><span class="line">            t(m+r+i,<span class="number">1</span>:n+<span class="number">2</span>*r)=t(m+r+<span class="number">1</span>-i,<span class="number">1</span>:n+<span class="number">2</span>*r);% 下</span><br><span class="line">        end</span><br><span class="line">    <span class="keyword">case</span> <span class="number">2</span>                                      % 全<span class="number">0</span>填充</span><br><span class="line">        t(r+<span class="number">1</span>:m+r,<span class="number">1</span>:r)=uint8(zeros(m,r));</span><br><span class="line">        t(r+<span class="number">1</span>:m+r,n+r+<span class="number">1</span>:n+<span class="number">2</span>*r)=uint8(zeros(m,r));</span><br><span class="line">        t(<span class="number">1</span>:r,<span class="number">1</span>:n+<span class="number">2</span>*r)=uint8(zeros(r,n+<span class="number">2</span>*r)); </span><br><span class="line">        t(m+r+<span class="number">1</span>:m+<span class="number">2</span>*r,<span class="number">1</span>:n+<span class="number">2</span>*r)=uint8(zeros(r,n+<span class="number">2</span>*r));  </span><br><span class="line">    otherwise                                   % 全<span class="number">255</span>填充</span><br><span class="line">        t(r+<span class="number">1</span>:m+r,<span class="number">1</span>:r)=uint8(<span class="number">255</span>*ones(m,r));</span><br><span class="line">        t(r+<span class="number">1</span>:m+r,n+r+<span class="number">1</span>:n+<span class="number">2</span>*r)=uint8(<span class="number">255</span>*ones(m,r));</span><br><span class="line">        t(<span class="number">1</span>:r,<span class="number">1</span>:n+<span class="number">2</span>*r)=uint8(<span class="number">255</span>*ones(r,n+<span class="number">2</span>*r)); </span><br><span class="line">        t(m+r+<span class="number">1</span>:m+<span class="number">2</span>*r,<span class="number">1</span>:n+<span class="number">2</span>*r)=uint8(<span class="number">255</span>*ones(r,n+<span class="number">2</span>*r));  </span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<h3 id="中值滤波"><a href="#中值滤波" class="headerlink" title="中值滤波"></a>中值滤波</h3><p>中值滤波便是把某像素点领域内的像素值按大小排列，选取中间的值作为该像素点的新值。<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">num_of_sort = ((<span class="number">1</span>+<span class="number">2</span>*r)^<span class="number">2</span>) - <span class="number">1</span>; %要处理的点的个数</span><br><span class="line">get_middle = zeros(<span class="number">1</span>,num_of_sort); %存储要处理的点的像素</span><br><span class="line"><span class="keyword">for</span> i=r+<span class="number">1</span>:m+r    %遍历原矩阵</span><br><span class="line">    <span class="keyword">for</span> j=r+<span class="number">1</span>:n+r</span><br><span class="line">        point = <span class="number">1</span>; %指示 get_middle 矩阵中的位置</span><br><span class="line">        <span class="keyword">for</span> p=i-r:i+r   % 行，r 邻域内</span><br><span class="line">            <span class="keyword">for</span> q=j-r:j+r   %列，r 邻域内</span><br><span class="line">                <span class="keyword">if</span> (p~=i &amp;&amp; q~=j)   %跳过本像素点</span><br><span class="line">                    get_middle(<span class="number">1</span>,point) = t(p,q);    </span><br><span class="line">                    point = point + <span class="number">1</span>; %指针后移一位</span><br><span class="line">                end </span><br><span class="line">            end</span><br><span class="line">        end</span><br><span class="line">        get_middle = sort(get_middle); %排序</span><br><span class="line">        t(i,j) = get_middle(<span class="number">1</span>,round(num_of_sort/<span class="number">2</span>)); %取中间的值</span><br><span class="line">    end</span><br><span class="line">end</span><br></pre></td></tr></table></figure></p>
+<h3 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ph=t(r+<span class="number">1</span>:m+r,r+<span class="number">1</span>:n+r);</span><br></pre></td></tr></table></figure>
+<script>
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/图像处理/" rel="tag"># 图像处理</a>
+          
+            <a href="/tags/matlab/" rel="tag"># matlab</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/06/图像模糊增强/" rel="next" title="图像模糊增强">
+                <i class="fa fa-chevron-left"></i> 图像模糊增强
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/07/图像加解密（像素级）/" rel="prev" title="像素级别图像加解密">
+                像素级别图像加解密 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+    <div class="comments" id="comments">
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="https://meetdevin.oss-cn-shenzhen.aliyuncs.com/mmexport1447158285856.jpg?x-oss-process=style/tuchuang" alt="Devin Zhang">
+            
+              <p class="site-author-name" itemprop="name">Devin Zhang</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">24</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">28</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/MeetDevin" title="GitHub &rarr; https://github.com/MeetDevin" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:meetdevin.zh@outlook.com" title="E-Mail &rarr; mailto:meetdevin.zh@outlook.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://www.douban.com/people/zxin94264/" title="豆瓣 &rarr; https://www.douban.com/people/zxin94264/" rel="noopener" target="_blank"><i class="fa fa-fw fa-cat"></i>豆瓣</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="http://steamcommunity.com/id/devinzhang" title="Steam &rarr; http://steamcommunity.com/id/devinzhang" rel="noopener" target="_blank"><i class="fa fa-fw fa-steam-symbol"></i>Steam</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#图像平滑"><span class="nav-number">1.</span> <span class="nav-text">图像平滑</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#文件一：主函数"><span class="nav-number">1.1.</span> <span class="nav-text">文件一：主函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#参数准备"><span class="nav-number">1.1.1.</span> <span class="nav-text">参数准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#调用函数"><span class="nav-number">1.1.2.</span> <span class="nav-text">调用函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结果显示"><span class="nav-number">1.1.3.</span> <span class="nav-text">结果显示</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#文件二：平滑函数"><span class="nav-number">1.2.</span> <span class="nav-text">文件二：平滑函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#灰度简化"><span class="nav-number">1.2.1.</span> <span class="nav-text">灰度简化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#边界扩充"><span class="nav-number">1.2.2.</span> <span class="nav-text">边界扩充</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中值滤波"><span class="nav-number">1.2.3.</span> <span class="nav-text">中值滤波</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#返回值"><span class="nav-number">1.2.4.</span> <span class="nav-text">返回值</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 – <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Devin Zhang</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=6.6.0"></script>
+
+  <script src="/js/src/motion.js?v=6.6.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=6.6.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=6.6.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=6.6.0"></script>
+<script src="/js/src/post-details.js?v=6.6.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=6.6.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script>
+  
+  
+  <script src="//unpkg.com/valine/dist/Valine.min.js"></script>
+
+  <script>
+    var GUEST = ['nick','mail','link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(function (item) {
+      return GUEST.indexOf(item)>-1;
+    });
+    new Valine({
+        el: '#comments' ,
+        verify: false,
+        notify: false,
+        appId: '6IN3m2rNpPb49i7J7Ufuf49P-gzGzoHsz',
+        appKey: 'DB1nkhJp3kavuO5Q529hfp4A',
+        placeholder: 'Just go go',
+        avatar:'mm',
+        meta:guest,
+        pageSize:'10' || 10,
+        visitor: false
+    });
+  </script>
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+    
+      <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      TeX: {equationNumbers: { autoNumber: "AMS" }}
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+      var all = MathJax.Hub.getAllJax(), i;
+        for (i=0; i < all.length; i += 1) {
+          all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<script src="//cdn.jsdelivr.net/npm/mathjax@2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+<style>
+.MathJax_Display {
+    overflow: auto hidden;
+}
+</style>
+
+    
+  
+
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  <style>
+    .copy-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 20px;
+      color: #333;
+      white-space: nowrap;
+      vertical-align: middle;
+      cursor: pointer;
+      background-color: #eee;
+      background-image: linear-gradient(#fcfcfc, #eee);
+      border: 1px solid #d5d5d5;
+      border-radius: 3px;
+      user-select: none;
+      outline: 0;
+    }
+
+    .highlight-wrap .copy-btn {
+      transition: opacity .3s ease-in-out;
+      opacity: 0;
+      padding: 2px 6px;
+      position: absolute;
+      right: 4px;
+      top: 8px;
+    }
+
+    .highlight-wrap:hover .copy-btn,
+    .highlight-wrap .copy-btn:focus {
+      opacity: 1
+    }
+
+    .highlight-wrap {
+      position: relative;
+    }
+  </style>
+  <script>
+    $('.highlight').each(function (i, e) {
+      var $wrap = $('<div>').addClass('highlight-wrap');
+      $(e).after($wrap);
+      $wrap.append($('<button>').addClass('copy-btn').append('复制').on('click', function (e) {
+        var code = $(this).parent().find('.code').find('.line').map(function (i, e) {
+          return $(e).text();
+        }).toArray().join('\n');
+        var ta = document.createElement('textarea');
+        var range = document.createRange(); //For Chrome
+        var sel = window.getSelection(); //For Chrome
+        var yPosition = window.pageYOffset || document.documentElement.scrollTop;
+        ta.style.top = yPosition + 'px'; //Prevent page scroll
+        ta.style.position = 'absolute';
+        ta.style.opacity = '0';
+        ta.value = code;
+        ta.textContent = code; //For FireFox
+        ta.contentEditable = true;
+        ta.readOnly = false;
+        document.body.appendChild(ta);
+        range.selectNode(ta);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        ta.setSelectionRange(0, code.length);
+        var result = document.execCommand('copy');
+        
+          if (result) $(this).text('复制成功');
+          else $(this).text('复制失败');
+        
+        ta.blur(); //For iOS
+        $(this).blur();
+      })).on('mouseleave', function (e) {
+        var $b = $(this).find('.copy-btn');
+        setTimeout(function () {
+          $b.text('复制');
+        }, 300);
+      }).append(e);
+    })
+  </script>
+
+
+  
+
+</body>
+</html>
